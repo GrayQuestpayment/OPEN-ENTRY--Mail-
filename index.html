@@ -1,1 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Entry — Mailer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220;--bg2:#0f1a2e;
+    --panel:#ffffff;--panel-soft:#f4f7fb;
+    --ink:#0f2038;--ink-soft:#5b6b82;--line:#e6ecf4;
+    --blue:#2563eb;--blue-2:#1d4ed8;--blue-light:#3b82f6;--sky:#60a5fa;
+    --green:#16a34a;--amber:#d97706;--white:#fff;--white-dim:#c7d3e3;--warn:#d97706;
+  }
+  *{box-sizing:border-box}html,body{margin:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--white);line-height:1.55;
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 500px at 80% -10%, rgba(37,99,235,0.25), transparent 60%),
+      radial-gradient(900px 500px at 0% 0%, rgba(59,130,246,0.14), transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    background-attachment:fixed;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;
+    max-width:1120px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.3px}
+  .logo{width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--blue-light),var(--blue-2));
+    display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(37,99,235,0.45)}
+  .logo svg{width:18px;height:18px}
+  .brand b{color:#fff}.brand span{color:var(--sky)}
+  .nav-up{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  input[type=file]{color:var(--white-dim);font-size:13px}
+  .tag{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);
+    border-radius:999px;padding:5px 14px;font-size:12px;color:var(--white-dim)}
+  .pill-btn{background:linear-gradient(135deg,var(--blue-light),var(--blue-2));color:#fff;border:none;
+    border-radius:999px;padding:10px 20px;font-weight:700;font-size:14px;cursor:pointer;
+    box-shadow:0 8px 22px rgba(37,99,235,0.4)}
 
+  .hero{text-align:center;padding:34px 20px 24px}
+  .eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--sky);font-weight:600;
+    font-size:15px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+  .eyebrow::before,.eyebrow::after{content:'';width:34px;height:1px;background:var(--sky);opacity:.6}
+  .hero h1{font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:-1px;margin:0}
+  .hero h1 .accent{background:linear-gradient(90deg,var(--sky),var(--blue-light));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{color:var(--white-dim);font-size:16px;margin-top:10px}
+
+  .card{background:var(--panel);color:var(--ink);border-radius:18px;padding:24px;margin-bottom:20px;
+    box-shadow:0 14px 40px rgba(5,15,35,0.4)}
+  .card h3{margin:0 0 16px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px}
+  .card h3::before{content:'';width:4px;height:16px;border-radius:2px;
+    background:linear-gradient(180deg,var(--blue-light),var(--blue-2))}
+  .step{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--blue);text-transform:uppercase;
+    margin-bottom:6px}
+
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  label.lbl{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:5px;
+    letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+  input[type=email],input[type=text]{background:var(--panel-soft);border:1px solid var(--line);
+    color:var(--ink);border-radius:10px;padding:10px 13px;font-size:14px;width:100%;
+    font-family:'Plus Jakarta Sans',sans-serif}
+  input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
+  textarea{width:100%;background:var(--panel-soft);border:1px solid var(--line);color:var(--ink);
+    border-radius:10px;padding:12px;font-size:14px;min-height:84px;font-family:'Plus Jakarta Sans',sans-serif}
+  textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
+
+  button{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;border:none;border-radius:10px;
+    padding:10px 18px;font-size:14px;cursor:pointer;color:#fff;
+    background:linear-gradient(135deg,var(--blue-light),var(--blue-2));box-shadow:0 8px 20px rgba(37,99,235,0.35)}
+  button:hover{transform:translateY(-1px)}
+  button.ghost{background:#fff;color:var(--blue);border:1px solid var(--line);box-shadow:none}
+  button.mini{padding:7px 13px;font-size:12px}
+  button.eye{background:#fff;color:var(--blue);border:1px solid var(--line);box-shadow:none;padding:6px 12px;font-size:12px}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;align-items:center}
+  .hint{color:var(--ink-soft);font-size:13px;margin-top:9px}
+  .hint code{color:var(--blue);background:rgba(37,99,235,0.08);padding:1px 6px;border-radius:5px}
+
+  .stats{display:flex;gap:14px;flex-wrap:wrap}
+  .pill{flex:1;min-width:150px;background:var(--panel-soft);padding:14px 16px;border-radius:12px;
+    font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+  .pill b{display:block;font-size:22px;margin-top:4px;color:var(--ink);letter-spacing:0}
+
+  table.grid{width:100%;border-collapse:collapse;font-size:14px;color:var(--ink)}
+  table.grid th,table.grid td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
+  table.grid th{color:var(--ink-soft);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  table.grid td.num{text-align:right;font-variant-numeric:tabular-nums;color:var(--green);font-weight:700}
+  table.grid tr:hover td{background:var(--panel-soft)}
+  .noemail input{border-color:var(--warn);box-shadow:0 0 0 3px rgba(217,119,6,0.12)}
+  a.mailbtn{text-decoration:none;padding:6px 13px;border-radius:8px;font-size:12px;font-weight:700;
+    display:inline-block;margin-left:6px;color:#fff;
+    background:linear-gradient(135deg,var(--blue-light),var(--blue-2))}
+  a.mailbtn.dim{background:#cbd5e1;color:#fff;pointer-events:none}
+
+  .modal{position:fixed;inset:0;background:rgba(6,12,26,0.7);display:none;align-items:center;
+    justify-content:center;padding:20px;z-index:20}
+  .modal .box{background:#fff;color:var(--ink);border-radius:16px;max-width:880px;width:100%;
+    max-height:85vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+  pre{background:var(--panel-soft);border:1px solid var(--line);border-radius:10px;padding:15px;
+    overflow:auto;font-size:12.5px;white-space:pre;color:var(--ink);
+    font-family:ui-monospace,Consolas,monospace}
+</style>
+</head>
+<body>
+  <div class="nav">
+    <div class="brand">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 10l4 2 4-2" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <b>Open</b><span>Entry</span>
+    </div>
+    <div class="nav-up">
+      <input type="file" id="file" accept=".xlsx,.xls">
+      <span class="tag" id="fileInfo">no file loaded</span>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow">Settlement Mailer</div>
+      <h1>Send <span class="accent">Confirmation Mails</span></h1>
+      <p>Upload the sheet, map emails, and send each institute its transaction table.</p>
+    </div>
+
+    <div id="results" style="display:none">
+      <div class="card">
+        <div class="step">Overview</div>
+        <div class="stats">
+          <div class="pill">Records<b id="totRec">0</b></div>
+          <div class="pill">Total Amount<b id="totAmt">₹0</b></div>
+          <div class="pill">Institutes<b id="totGrp">0</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="step">Message</div>
+        <div class="row" style="margin-bottom:14px">
+          <div style="flex:1;min-width:240px">
+            <label class="lbl">Email Subject</label>
+            <input type="text" id="subject" value="Open Entry Settlement - Payment Confirmation">
+          </div>
+          <div style="flex:1;min-width:200px">
+            <label class="lbl">Signature</label>
+            <input type="text" id="sender" value="Ganesh, GrayQuest">
+          </div>
+        </div>
+        <label class="lbl">Intro — <code>{name}</code> <code>{amount}</code> <code>{count}</code> auto-replace; table drops in below</label>
+        <textarea id="body">Dear {name},
+
+We confirm the settlement of {count} transaction(s) amounting to Rs. {amount}. Details below:</textarea>
+
+        <div class="toolbar">
+          <button class="ghost mini" onclick="saveEmails()">Save emails</button>
+          <button class="ghost mini" onclick="loadEmails()">Load saved</button>
+          <button class="ghost mini" onclick="downloadCsv()">Email CSV</button>
+          <input type="file" id="csvIn" accept=".csv" style="display:none" onchange="importCsv(event)">
+          <button class="ghost mini" onclick="document.getElementById('csvIn').click()">CSV import</button>
+        </div>
+
+        <table class="grid">
+          <thead><tr><th>Institute / Parent</th><th class="num">Amount</th><th class="num">Txns</th>
+            <th style="min-width:220px">Email</th><th>Action</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="hint">Emails save in your browser. Hit Preview to see exactly what the mail contains.</div>
+      </div>
+
+      <div class="card">
+        <div class="step">Dispatch</div>
+        <div class="toolbar">
+          <button onclick="sendAllGmail()">✉ Open all Gmail drafts</button>
+          <button class="ghost" onclick="copyAllEmails()">Copy all emails (BCC)</button>
+        </div>
+        <div class="hint">Gmail compose takes plain text only — table is monospace-aligned. Each institute opens in its own tab with its own table; just hit Send. For bordered HTML tables + one-click auto-send, use the Apps Script version.</div>
+      </div>
+    </div>
+
+    <div id="pre" class="card" style="text-align:center;color:var(--ink-soft)">
+      Upload the OPEN ENTRY .xlsx to begin.
+    </div>
+  </div>
+
+  <div class="modal" id="modal" onclick="if(event.target.id==='modal')closeModal()">
+    <div class="box">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <b id="mTitle" style="color:var(--blue)">Preview</b>
+        <button class="ghost mini" onclick="closeModal()">✕ Close</button>
+      </div>
+      <pre id="mBody"></pre>
+    </div>
+  </div>
+
+<script>
+let GROUPS={},ORDER=[];
+document.getElementById('file').addEventListener('change', handleFile);
+function handleFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  document.getElementById('fileInfo').textContent=f.name;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array',cellDates:true});
+    let sn=wb.SheetNames.find(n=>n.toUpperCase().includes('DATA'))||wb.SheetNames[wb.SheetNames.length-1];
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
+    build(rows);
+  };
+  reader.readAsArrayBuffer(f);
+}
+function col(row,keys){
+  for(const k of Object.keys(row)){
+    const kn=k.toString().toUpperCase().replace(/[^A-Z]/g,'');
+    for(const w of keys){ if(kn.includes(w)) return row[k]; }
+  }
+  return '';
+}
+function fmtDate(v){
+  if(v instanceof Date && !isNaN(v)){
+    const d=String(v.getDate()).padStart(2,'0');
+    const m=String(v.getMonth()+1).padStart(2,'0');
+    return `${d}/${m}/${v.getFullYear()}`;
+  }
+  return (v||'').toString();
+}
+function build(rows){
+  GROUPS={};ORDER=[];
+  for(const r of rows){
+    let name=(col(r,['REMARK'])||'').toString().trim();
+    if(!name) name=(col(r,['PAYERNAME','PAYER'])||'').toString().trim();
+    if(!name) continue;
+    let amt=parseFloat((col(r,['AMOUNT'])+'').replace(/[^0-9.\-]/g,''))||0;
+    if(!GROUPS[name]){GROUPS[name]={name,amount:0,count:0,email:'',txns:[]};ORDER.push(name);}
+    const g=GROUPS[name];g.amount+=amt;g.count++;
+    g.txns.push({payid:(col(r,['PAYID'])||'').toString(),amount:amt,
+      acc:(col(r,['ACNO'])||'').toString(),ifsc:(col(r,['IFSC'])||'').toString(),
+      utr:(col(r,['UTR','BANKREF'])||'').toString(),date:fmtDate(col(r,['DATE'])),remark:name});
+  }
+  ORDER.sort((a,b)=>GROUPS[b].amount-GROUPS[a].amount);
+  loadEmails(true);render();
+  document.getElementById('pre').style.display='none';
+  document.getElementById('results').style.display='block';
+}
+function inr(n){return n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function escq(s){return s.replace(/'/g,"\\'");}
+function render(){
+  const tb=document.getElementById('rows');tb.innerHTML='';
+  let ta=0,tr=0;
+  ORDER.forEach((name,i)=>{
+    const g=GROUPS[name];ta+=g.amount;tr+=g.count;
+    const row=document.createElement('tr');
+    row.innerHTML=`<td>${g.name}</td><td class="num">₹${inr(g.amount)}</td><td class="num" style="color:var(--ink)">${g.count}</td>
+      <td class="${g.email?'':'noemail'}"><input type="email" placeholder="email@institute.com" value="${g.email||''}" oninput="setEmail('${escq(name)}',this.value)"></td>
+      <td style="white-space:nowrap"><button class="eye" onclick="preview('${escq(name)}')">Preview</button>
+      <a class="mailbtn ${g.email?'':'dim'}" id="mb_${i}" href="#" onclick="return gmail('${escq(name)}')">Gmail</a></td>`;
+    tb.appendChild(row);
+  });
+  document.getElementById('totAmt').textContent='₹'+inr(ta);
+  document.getElementById('totRec').textContent=tr;
+  document.getElementById('totGrp').textContent=ORDER.length;
+}
+function setEmail(name,v){
+  GROUPS[name].email=v.trim();saveEmails();
+  const idx=ORDER.indexOf(name);const mb=document.getElementById('mb_'+idx);
+  if(mb)mb.className='mailbtn '+(v.trim()?'':'dim');
+}
+function buildTable(g){
+  const heads=['PAY ID','Amount','A/C NO','IFSC','UTR / BANK REF','Date','Remark'];
+  const data=g.txns.map(t=>[t.payid,inr(t.amount),t.acc,t.ifsc,t.utr,t.date,t.remark]);
+  const all=[heads,...data];
+  const w=heads.map((_,c)=>Math.max(...all.map(r=>(r[c]||'').toString().length)));
+  const line=r=>r.map((c,i)=>(c||'').toString().padEnd(w[i])).join(' | ');
+  const sep=w.map(x=>'-'.repeat(x)).join('-+-');
+  let out=line(heads)+'\n'+sep+'\n';
+  data.forEach(r=>out+=line(r)+'\n');
+  out+=sep+'\n'+'TOTAL'.padEnd(w[0])+' | '+inr(g.amount).padEnd(w[1])+' | '+g.count+' txns\n';
+  return out;
+}
+function buildMsg(g){
+  const subj=document.getElementById('subject').value;
+  const sender=document.getElementById('sender').value;
+  let intro=document.getElementById('body').value
+    .replaceAll('{name}',g.name).replaceAll('{amount}',inr(g.amount))
+    .replaceAll('{count}',g.count).replaceAll('{sender}',sender);
+  return {subj,body:intro+'\n\n'+buildTable(g)+'\nRegards,\n'+sender};
+}
+function preview(name){
+  const g=GROUPS[name];const {subj,body}=buildMsg(g);
+  document.getElementById('mTitle').textContent=g.name+'  →  '+(g.email||'(email not set)');
+  document.getElementById('mBody').textContent='Subject: '+subj+'\n\n'+body;
+  document.getElementById('modal').style.display='flex';
+}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function gmail(name){
+  const g=GROUPS[name];if(!g.email){alert('Set an email first.');return false;}
+  const {subj,body}=buildMsg(g);
+  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(g.email)+
+    '&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
+  return false;
+}
+function sendAllGmail(){
+  const list=ORDER.filter(n=>GROUPS[n].email);
+  if(!list.length){alert('No emails set.');return;}
+  if(!confirm(list.length+' Gmail tabs will open (each with its own table). Allow popups. Continue?'))return;
+  list.forEach((n,idx)=>{setTimeout(()=>{
+    const {subj,body}=buildMsg(GROUPS[n]);
+    window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(GROUPS[n].email)+
+      '&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
+  },idx*500);});
+}
+function copyAllEmails(){
+  const e=ORDER.filter(n=>GROUPS[n].email).map(n=>GROUPS[n].email).join(', ');
+  if(!e){alert('No emails set.');return;}
+  navigator.clipboard.writeText(e).then(()=>alert('Copied!'));
+}
+function saveEmails(){const m={};ORDER.forEach(n=>{if(GROUPS[n].email)m[n]=GROUPS[n].email;});localStorage.setItem('oe_emails',JSON.stringify(m));}
+function loadEmails(silent){
+  const raw=localStorage.getItem('oe_emails');if(!raw){if(!silent)alert('Nothing saved.');return;}
+  const m=JSON.parse(raw);ORDER.forEach(n=>{if(m[n])GROUPS[n].email=m[n];});if(!silent)render();
+}
+function downloadCsv(){
+  let csv='Name,Amount,Count,Email\n';
+  ORDER.forEach(n=>{const g=GROUPS[n];csv+=`"${g.name}",${g.amount},${g.count},"${g.email||''}"\n`;});
+  const b=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='email_mapping.csv';a.click();
+}
+function importCsv(e){
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=ev=>{const lines=ev.target.result.split('\n').slice(1);const m={};
+    lines.forEach(l=>{const mt=l.match(/^"?(.*?)"?,[^,]*,[^,]*,"?(.*?)"?$/);if(mt&&mt[2])m[mt[1]]=mt[2].trim();});
+    ORDER.forEach(n=>{if(m[n])GROUPS[n].email=m[n];});saveEmails();render();};
+  r.readAsText(f);
+}
+</script>
+</body>
+</html>
