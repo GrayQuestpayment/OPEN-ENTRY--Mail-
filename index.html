@@ -410,26 +410,58 @@ function exportCsv(){
 }
 function dl(content,name,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
 
-/* ---- CEO executive summary export (standalone HTML) ---- */
+/* round to whole rupees, no paise, Indian grouping */
+function inrRound(n){return '₹'+Math.round(Number(n)).toLocaleString('en-IN');}
+/* date like "12th Aug-26" */
+function niceDate(){
+  const d=new Date();
+  const day=d.getDate();
+  const suf=(day%10==1&&day!=11)?'th':(day%10==1?'st':day%10==2&&day!=12?'nd':day%10==3&&day!=13?'rd':'th');
+  const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+  const yy=String(d.getFullYear()).slice(-2);
+  return day+suf+' '+mon+'-'+yy;
+}
+/* normalize percentages so they sum to exactly 100.0 (largest-remainder) */
+function pctTo100(vals){
+  const total=vals.reduce((s,v)=>s+v,0)||1;
+  const raw=vals.map(v=>v/total*1000); // one decimal precision
+  const floor=raw.map(x=>Math.floor(x));
+  let rem=1000-floor.reduce((s,x)=>s+x,0);
+  const order=raw.map((x,i)=>({i,frac:x-Math.floor(x)})).sort((a,b)=>b.frac-a.frac);
+  for(let k=0;k<rem;k++) floor[order[k%order.length].i]++;
+  return floor.map(x=>(x/10).toFixed(1));
+}
+
+/* ---- CEO summary export (standalone HTML) ---- */
 function exportExec(){
   if(!TX.length){alert('Upload a sheet first.');return;}
   const total=TX.reduce((s,t)=>s+t.amount,0);
   const groups=new Set(TX.map(t=>t.remark)).size;
   const g=groupSums();
+  const pcts=pctTo100(g.map(x=>x.amount));      // all institutes, sums to 100
   const top=g.slice(0,10);
+  const rest=g.slice(10);
   const max=top.length?top[0].amount:1;
-  const gt=g.reduce((s,x)=>s+x.amount,0)||1;
-  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const dateStr=niceDate();
 
-  const bars=top.map(x=>`<tr>
+  const bars=top.map((x,i)=>`<tr>
     <td style="padding:8px 10px;font-weight:600;color:#0f2038">${x.name}</td>
-    <td style="padding:8px 10px;width:55%">
+    <td style="padding:8px 10px;width:52%">
       <div style="background:#eef2f7;border-radius:6px;overflow:hidden;height:18px">
         <div style="height:100%;width:${(x.amount/max*100).toFixed(1)}%;background:linear-gradient(90deg,#60a5fa,#1d4ed8)"></div>
       </div></td>
-    <td style="padding:8px 10px;text-align:right;font-weight:700;color:#1d4ed8;white-space:nowrap">${inr(x.amount)}</td>
-    <td style="padding:8px 10px;text-align:right;color:#5b6b82">${(x.amount/gt*100).toFixed(1)}%</td>
+    <td style="padding:8px 10px;text-align:right;font-weight:700;color:#1d4ed8;white-space:nowrap">${inrRound(x.amount)}</td>
+    <td style="padding:8px 10px;text-align:right;color:#5b6b82;white-space:nowrap">${pcts[i]}%</td>
   </tr>`).join('');
+
+  const restRows=rest.map((x,j)=>`<tr>
+    <td style="padding:6px 10px;color:#0f2038">${x.name}</td>
+    <td style="padding:6px 10px;text-align:right;font-weight:600;color:#1d4ed8;white-space:nowrap">${inrRound(x.amount)}</td>
+    <td style="padding:6px 10px;text-align:right;color:#5b6b82;white-space:nowrap">${pcts[10+j]}%</td>
+  </tr>`).join('');
+
+  const restPanel=rest.length?`<div class="panel"><h3>Other Institutes (${rest.length})</h3>
+    <table><tbody>${restRows}</tbody></table></div>`:'';
 
   const kpi=(lbl,val,color)=>`<td style="padding:6px">
     <div style="background:#fff;border-radius:14px;padding:18px;border-top:4px solid ${color};box-shadow:0 6px 18px rgba(5,15,35,0.08)">
@@ -438,35 +470,32 @@ function exportExec(){
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Open Entry — Executive Summary (${today})</title>
-<style>body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f1a2e);padding:30px 16px;color:#fff}
+<title>Open Entry Summary ${dateStr}</title>
+<style>body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f1a2e);padding:34px 16px;color:#fff}
 .sheet{max-width:760px;margin:0 auto}
-.head{text-align:center;margin-bottom:24px}
-.head .brand{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#60a5fa;font-weight:700}
-.head h1{font-size:30px;margin:6px 0 2px;font-weight:800}
-.head .date{color:#c7d3e3;font-size:14px}
+.head{text-align:center;margin-bottom:26px}
+.head h1{font-size:32px;margin:0;font-weight:800;letter-spacing:-.5px}
 .panel{background:#fff;color:#0f2038;border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 14px 40px rgba(5,15,35,0.4)}
 .panel h3{margin:0 0 14px;font-size:15px;color:#0f2038}
 table{width:100%;border-collapse:collapse;font-size:13px}
 .foot{text-align:center;color:#c7d3e3;font-size:12px;padding-top:8px}</style></head>
 <body><div class="sheet">
-<div class="head"><div class="brand">Open Entry · Settlement Report</div>
-<h1>Executive Summary</h1><div class="date">As of ${today}</div></div>
+<div class="head"><h1>Open Entry Summary ${dateStr}</h1></div>
 <table style="width:100%;border-collapse:separate;border-spacing:0"><tr>
 ${kpi('Total Settled',inrShort(total),'#1d4ed8')}
 ${kpi('Transactions',TX.length,'#16a34a')}
 ${kpi('Institutes',groups,'#db2777')}
-${kpi('Avg / Txn',inrShort(total/TX.length),'#d97706')}
 </tr></table>
-<div class="panel"><h3>Top Institutes by Settlement Amount</h3>
+<div class="panel"><h3>Top Institutes by Amount</h3>
 <table><tbody>${bars}</tbody></table></div>
+${restPanel}
 <div class="panel" style="background:#f4f7fb"><h3>Grand Total</h3>
-<div style="font-size:26px;font-weight:800;color:#1d4ed8">${inr(total)}</div>
+<div style="font-size:26px;font-weight:800;color:#1d4ed8">${inrRound(total)}</div>
 <div style="color:#5b6b82;font-size:13px;margin-top:4px">${TX.length} transactions across ${groups} institutes</div></div>
-<div class="foot">Generated from Open Entry Settlement Suite · GrayQuest · confidential</div>
+<div class="foot">Open Entry Summary · GrayQuest · confidential</div>
 </div></body></html>`;
 
-  dl(html,`Open_Entry_Executive_Summary_${today.replace(/ /g,'_')}.html`,'text/html');
+  dl(html,`Open_Entry_Summary_${dateStr.replace(/ /g,'_')}.html`,'text/html');
 }
 
 /* ---- mailer ---- */
