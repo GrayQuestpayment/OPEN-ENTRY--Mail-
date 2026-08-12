@@ -176,8 +176,9 @@
         <p>Live view of institute settlements — export a summary for leadership below.</p>
       </div>
 
-      <div style="text-align:center;margin-bottom:22px">
-        <button class="btn green" onclick="exportExec()">📤 Export Executive Summary (for CEO)</button>
+      <div style="text-align:center;margin-bottom:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn green" onclick="copyForEmail()">📋 Copy Summary for Email</button>
+        <button class="btn" onclick="exportExec()">📤 Download Summary (attach / PDF)</button>
       </div>
 
       <div class="kpis">
@@ -432,70 +433,93 @@ function pctTo100(vals){
   return floor.map(x=>(x/10).toFixed(1));
 }
 
-/* ---- CEO summary export (standalone HTML) ---- */
-function exportExec(){
-  if(!TX.length){alert('Upload a sheet first.');return;}
+/* ---- shared summary builder (email-safe: white bg, inline styles) ---- */
+function buildSummaryHtml(){
   const total=TX.reduce((s,t)=>s+t.amount,0);
   const groups=new Set(TX.map(t=>t.remark)).size;
   const g=groupSums();
-  const pcts=pctTo100(g.map(x=>x.amount));      // all institutes, sums to 100
+  const pcts=pctTo100(g.map(x=>x.amount));
   const top=g.slice(0,10);
   const rest=g.slice(10);
   const max=top.length?top[0].amount:1;
   const dateStr=niceDate();
 
   const bars=top.map((x,i)=>`<tr>
-    <td style="padding:8px 10px;font-weight:600;color:#0f2038">${x.name}</td>
-    <td style="padding:8px 10px;width:52%">
-      <div style="background:#eef2f7;border-radius:6px;overflow:hidden;height:18px">
-        <div style="height:100%;width:${(x.amount/max*100).toFixed(1)}%;background:linear-gradient(90deg,#60a5fa,#1d4ed8)"></div>
+    <td style="padding:8px 10px;font-weight:600;color:#0f2038;border-bottom:1px solid #eef2f7">${x.name}</td>
+    <td style="padding:8px 10px;width:50%;border-bottom:1px solid #eef2f7">
+      <div style="background:#eef2f7;border-radius:6px;overflow:hidden;height:16px">
+        <div style="height:16px;width:${(x.amount/max*100).toFixed(1)}%;background:#2563eb"></div>
       </div></td>
-    <td style="padding:8px 10px;text-align:right;font-weight:700;color:#1d4ed8;white-space:nowrap">${inrRound(x.amount)}</td>
-    <td style="padding:8px 10px;text-align:right;color:#5b6b82;white-space:nowrap">${pcts[i]}%</td>
+    <td style="padding:8px 10px;text-align:right;font-weight:700;color:#1d4ed8;white-space:nowrap;border-bottom:1px solid #eef2f7">${inrRound(x.amount)}</td>
+    <td style="padding:8px 10px;text-align:right;color:#5b6b82;white-space:nowrap;border-bottom:1px solid #eef2f7">${pcts[i]}%</td>
   </tr>`).join('');
 
   const restRows=rest.map((x,j)=>`<tr>
-    <td style="padding:6px 10px;color:#0f2038">${x.name}</td>
-    <td style="padding:6px 10px;text-align:right;font-weight:600;color:#1d4ed8;white-space:nowrap">${inrRound(x.amount)}</td>
-    <td style="padding:6px 10px;text-align:right;color:#5b6b82;white-space:nowrap">${pcts[10+j]}%</td>
+    <td style="padding:6px 10px;color:#0f2038;border-bottom:1px solid #eef2f7">${x.name}</td>
+    <td style="padding:6px 10px;text-align:right;font-weight:600;color:#1d4ed8;white-space:nowrap;border-bottom:1px solid #eef2f7">${inrRound(x.amount)}</td>
+    <td style="padding:6px 10px;text-align:right;color:#5b6b82;white-space:nowrap;border-bottom:1px solid #eef2f7">${pcts[10+j]}%</td>
   </tr>`).join('');
 
-  const restPanel=rest.length?`<div class="panel"><h3>Other Institutes (${rest.length})</h3>
-    <table><tbody>${restRows}</tbody></table></div>`:'';
+  const restPanel=rest.length?`
+    <div style="background:#fff;border:1px solid #e6ecf4;border-radius:14px;padding:18px;margin:0 0 16px">
+      <div style="font-size:14px;font-weight:700;color:#0f2038;margin-bottom:12px">Other Institutes (${rest.length})</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>${restRows}</tbody></table></div>`:'';
 
-  const kpi=(lbl,val,color)=>`<td style="padding:6px">
-    <div style="background:#fff;border-radius:14px;padding:18px;border-top:4px solid ${color};box-shadow:0 6px 18px rgba(5,15,35,0.08)">
+  const kpi=(lbl,val,color)=>`<td style="padding:6px" width="33%">
+    <div style="background:#fff;border:1px solid #e6ecf4;border-top:4px solid ${color};border-radius:14px;padding:16px">
       <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#5b6b82;font-weight:600">${lbl}</div>
-      <div style="font-size:24px;font-weight:800;color:#0f2038;margin-top:4px">${val}</div></div></td>`;
+      <div style="font-size:23px;font-weight:800;color:#0f2038;margin-top:4px">${val}</div></div></td>`;
 
+  // outer wrapper uses white so it survives Gmail; header band is navy
+  const inner=`<div style="max-width:720px;margin:0 auto;font-family:'Segoe UI',Arial,sans-serif">
+    <div style="background:#0f1a2e;border-radius:14px;padding:22px;text-align:center;margin-bottom:18px">
+      <div style="font-size:26px;font-weight:800;color:#fff">Open Entry Summary ${dateStr}</div>
+    </div>
+    <table style="width:100%;border-collapse:separate;border-spacing:0;margin-bottom:16px"><tr>
+      ${kpi('Total Settled',inrShort(total),'#1d4ed8')}
+      ${kpi('Transactions',TX.length,'#16a34a')}
+      ${kpi('Institutes',groups,'#db2777')}
+    </tr></table>
+    <div style="background:#fff;border:1px solid #e6ecf4;border-radius:14px;padding:18px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:#0f2038;margin-bottom:12px">Top Institutes by Amount</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>${bars}</tbody></table></div>
+    ${restPanel}
+    <div style="background:#f4f7fb;border:1px solid #e6ecf4;border-radius:14px;padding:18px">
+      <div style="font-size:14px;font-weight:700;color:#0f2038;margin-bottom:6px">Grand Total</div>
+      <div style="font-size:25px;font-weight:800;color:#1d4ed8">${inrRound(total)}</div>
+      <div style="color:#5b6b82;font-size:13px;margin-top:4px">${TX.length} transactions across ${groups} institutes</div></div>
+    <div style="text-align:center;color:#9aa7b8;font-size:12px;padding-top:10px">Open Entry Summary · GrayQuest · confidential</div>
+  </div>`;
+
+  return {inner,dateStr};
+}
+
+/* Download as standalone file (attach / print-to-PDF) */
+function exportExec(){
+  if(!TX.length){alert('Upload a sheet first.');return;}
+  const {inner,dateStr}=buildSummaryHtml();
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Open Entry Summary ${dateStr}</title>
-<style>body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f1a2e);padding:34px 16px;color:#fff}
-.sheet{max-width:760px;margin:0 auto}
-.head{text-align:center;margin-bottom:26px}
-.head h1{font-size:32px;margin:0;font-weight:800;letter-spacing:-.5px}
-.panel{background:#fff;color:#0f2038;border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 14px 40px rgba(5,15,35,0.4)}
-.panel h3{margin:0 0 14px;font-size:15px;color:#0f2038}
-table{width:100%;border-collapse:collapse;font-size:13px}
-.foot{text-align:center;color:#c7d3e3;font-size:12px;padding-top:8px}</style></head>
-<body><div class="sheet">
-<div class="head"><h1>Open Entry Summary ${dateStr}</h1></div>
-<table style="width:100%;border-collapse:separate;border-spacing:0"><tr>
-${kpi('Total Settled',inrShort(total),'#1d4ed8')}
-${kpi('Transactions',TX.length,'#16a34a')}
-${kpi('Institutes',groups,'#db2777')}
-</tr></table>
-<div class="panel"><h3>Top Institutes by Amount</h3>
-<table><tbody>${bars}</tbody></table></div>
-${restPanel}
-<div class="panel" style="background:#f4f7fb"><h3>Grand Total</h3>
-<div style="font-size:26px;font-weight:800;color:#1d4ed8">${inrRound(total)}</div>
-<div style="color:#5b6b82;font-size:13px;margin-top:4px">${TX.length} transactions across ${groups} institutes</div></div>
-<div class="foot">Open Entry Summary · GrayQuest · confidential</div>
-</div></body></html>`;
-
+<title>Open Entry Summary ${dateStr}</title></head>
+<body style="margin:0;background:#eef2f7;padding:28px 14px">${inner}</body></html>`;
   dl(html,`Open_Entry_Summary_${dateStr.replace(/ /g,'_')}.html`,'text/html');
+}
+
+/* Copy rich HTML to clipboard → paste straight into Gmail body */
+async function copyForEmail(){
+  if(!TX.length){alert('Upload a sheet first.');return;}
+  const {inner}=buildSummaryHtml();
+  try{
+    const blob=new Blob([inner],{type:'text/html'});
+    const data=[new ClipboardItem({'text/html':blob,'text/plain':new Blob([inner.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ')],{type:'text/plain'})})];
+    await navigator.clipboard.write(data);
+    alert('Copied! Ab Gmail Compose kholo aur body me Ctrl+V (paste) karo.');
+  }catch(err){
+    // fallback: open a window with selectable content
+    const w=window.open('','_blank');
+    w.document.write('<div style="font-family:sans-serif;padding:10px;background:#fffbe6;border-bottom:1px solid #ddd">Select all (Ctrl+A) → Copy (Ctrl+C) → paste into Gmail.</div>'+inner);
+    w.document.close();
+  }
 }
 
 /* ---- mailer ---- */
