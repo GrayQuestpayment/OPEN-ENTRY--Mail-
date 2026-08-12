@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Entry - Email Sender</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1419; --card:#1a2129; --line:#2a333d; --text:#e6edf3;
+    --muted:#8b98a5; --accent:#3fb950; --accent2:#2f81f7; --warn:#d29922; --danger:#f85149;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);color:var(--text);padding:20px;line-height:1.5}
+  .wrap{max-width:1050px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px;margin-bottom:18px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  input[type=file]{color:var(--muted);font-size:14px}
+  input[type=email],input[type=text]{background:#0d1117;border:1px solid var(--line);
+    color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;width:100%}
+  input:focus{outline:none;border-color:var(--accent2)}
+  button{background:var(--accent);color:#04150a;border:none;border-radius:8px;
+    padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer}
+  button:hover{opacity:.9}
+  button.sec{background:var(--accent2);color:#fff}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--text);font-weight:500}
+  button.mini{padding:5px 10px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr:hover td{background:#141b22}
+  .amt{color:var(--accent)}
+  .tag{display:inline-block;background:#0d1117;border:1px solid var(--line);
+    border-radius:20px;padding:2px 10px;font-size:11px;color:var(--muted)}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;align-items:center}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px}
+  .pill{background:#0d1117;padding:10px 14px;border-radius:8px;border:1px solid var(--line);
+    font-size:13px}
+  .pill b{color:var(--accent)}
+  .noemail input{border-color:var(--warn)}
+  a.mailbtn{text-decoration:none;background:var(--accent2);color:#fff;padding:5px 12px;
+    border-radius:7px;font-size:12px;font-weight:600;display:inline-block}
+  a.mailbtn.dim{background:#30363d;color:var(--muted);pointer-events:none}
+  .subject-row{margin-bottom:12px}
+  label.lbl{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+  textarea{width:100%;background:#0d1117;border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:10px;font-size:13px;min-height:90px;font-family:inherit}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:700px){.split{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📊 Open Entry → Email Sender</h1>
+  <div class="sub">Excel upload karo → pivot auto banega → har naam ke aage email daalo → ek saath mail bhejo.</div>
+
+  <div class="card">
+    <div class="row">
+      <input type="file" id="file" accept=".xlsx,.xls">
+      <span class="tag" id="fileInfo">koi file nahi</span>
+    </div>
+    <div class="hint">Tumhari "OPEN ENTRY" wali file upload karo. App khud DATA sheet se REMARK (institute/parent naam) ke hisaab se amount aur count group kar deta hai.</div>
+  </div>
+
+  <div id="results" style="display:none">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="pill">Total records: <b id="totRec">0</b></div>
+        <div class="pill">Total amount: <b id="totAmt">₹0</b></div>
+        <div class="pill">Groups: <b id="totGrp">0</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="subject-row split">
+        <div>
+          <label class="lbl">Email Subject</label>
+          <input type="text" id="subject" value="Open Entry Settlement - Payment Confirmation">
+        </div>
+        <div>
+          <label class="lbl">Sender ka naam (signature)</label>
+          <input type="text" id="sender" value="Ganesh, GrayQuest">
+        </div>
+      </div>
+      <label class="lbl">Email Body — <code>{name}</code>, <code>{amount}</code>, <code>{count}</code> auto-replace honge</label>
+      <textarea id="body">Dear {name},
+
+We confirm the settlement of {count} transaction(s) amounting to ₹{amount}.
+
+Please find the payment details in our records. For any discrepancy, kindly revert.
+
+Regards,
+{sender}</textarea>
+
+      <div class="toolbar">
+        <button class="ghost mini" onclick="saveEmails()">💾 Emails save karo</button>
+        <button class="ghost mini" onclick="loadEmails()">↻ Saved load karo</button>
+        <button class="sec mini" onclick="downloadCsv()">⬇ Email mapping CSV</button>
+        <input type="file" id="csvIn" accept=".csv" style="display:none" onchange="importCsv(event)">
+        <button class="ghost mini" onclick="document.getElementById('csvIn').click()">⬆ CSV import</button>
+      </div>
+
+      <table>
+        <thead><tr>
+          <th>Institute / Parent</th><th class="num">Amount</th><th class="num">Count</th>
+          <th style="min-width:230px">Email</th><th>Send</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="hint">Har naam ke aage email daalo. Emails browser me save ho jaate hain (localStorage) — dobaara file upload karne par bhi rahenge.</div>
+    </div>
+
+    <div class="card">
+      <label class="lbl">Sabko ek saath bhejo</label>
+      <div class="toolbar">
+        <button onclick="sendAllGmail()">✉ Gmail me sabke drafts kholo</button>
+        <button class="sec" onclick="sendAllMailto()">📧 Default mail app me kholo</button>
+        <button class="ghost" onclick="copyAllEmails()">📋 Saari emails copy karo (BCC ke liye)</button>
+      </div>
+      <div class="hint">Note: Browser directly server-se mail nahi bhej sakta. "Gmail" har institute ke liye pre-filled compose tab kholega (bas Send dabana hai). Agar bahut saare hain to browser popup allow karna padega.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let PIVOT = []; // {name, amount, count, email}
+
+document.getElementById('file').addEventListener('change', handleFile);
+
+function handleFile(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  document.getElementById('fileInfo').textContent = f.name;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
+    // DATA sheet dhoondo, warna last sheet
+    let sheetName = wb.SheetNames.find(n => n.toUpperCase().includes('DATA')) || wb.SheetNames[wb.SheetNames.length-1];
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {defval:''});
+    buildPivot(rows);
+  };
+  reader.readAsArrayBuffer(f);
+}
+
+function pick(row, keys){
+  for(const k of Object.keys(row)){
+    const kn = k.toString().toUpperCase().replace(/[^A-Z]/g,'');
+    for(const want of keys){ if(kn.includes(want)) return row[k]; }
+  }
+  return '';
+}
+
+function buildPivot(rows){
+  const map = {};
+  for(const r of rows){
+    let name = pick(r, ['REMARK']);
+    if(!name) name = pick(r,['PAYERNAME','PAYER']);
+    name = (name||'').toString().trim();
+    if(!name) continue;
+    let amt = parseFloat((pick(r,['AMOUNT'])+'').toString().replace(/[^0-9.\-]/g,'')) || 0;
+    if(!map[name]) map[name] = {name, amount:0, count:0};
+    map[name].amount += amt;
+    map[name].count += 1;
+  }
+  PIVOT = Object.values(map).sort((a,b)=>b.amount-a.amount);
+  loadEmails(true);
+  render();
+  document.getElementById('results').style.display='block';
+}
+
+function fmt(n){ return '₹'+n.toLocaleString('en-IN',{maximumFractionDigits:2}); }
+
+function render(){
+  const tb = document.getElementById('rows');
+  tb.innerHTML='';
+  let totAmt=0, totRec=0;
+  PIVOT.forEach((p,i)=>{
+    totAmt+=p.amount; totRec+=p.count;
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.name}</td>
+      <td class="num amt">${fmt(p.amount)}</td>
+      <td class="num">${p.count}</td>
+      <td class="${p.email?'':'noemail'}"><input type="email" placeholder="email@daalo.com"
+          value="${p.email||''}" oninput="setEmail(${i}, this.value)"></td>
+      <td><a class="mailbtn ${p.email?'':'dim'}" id="mb${i}" href="#"
+          onclick="return openGmail(${i})">Gmail</a></td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('totAmt').textContent=fmt(totAmt);
+  document.getElementById('totRec').textContent=totRec;
+  document.getElementById('totGrp').textContent=PIVOT.length;
+}
+
+function setEmail(i,v){
+  PIVOT[i].email=v.trim();
+  const mb=document.getElementById('mb'+i);
+  if(mb) mb.className='mailbtn '+(v.trim()?'':'dim');
+  saveEmails();
+}
+
+function buildMsg(p){
+  const subj=document.getElementById('subject').value;
+  const sender=document.getElementById('sender').value;
+  let body=document.getElementById('body').value
+    .replaceAll('{name}',p.name)
+    .replaceAll('{amount}',p.amount.toLocaleString('en-IN',{maximumFractionDigits:2}))
+    .replaceAll('{count}',p.count)
+    .replaceAll('{sender}',sender);
+  return {subj,body};
+}
+
+function openGmail(i){
+  const p=PIVOT[i];
+  if(!p.email){alert('Pehle email daalo.');return false;}
+  const {subj,body}=buildMsg(p);
+  const url='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(p.email)+
+    '&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  window.open(url,'_blank');
+  return false;
+}
+
+function sendAllGmail(){
+  const list=PIVOT.filter(p=>p.email);
+  if(!list.length){alert('Kisi ke paas email nahi hai.');return;}
+  if(!confirm(list.length+' Gmail compose tabs khulenge. Popup allow karna. Continue?'))return;
+  list.forEach((p,idx)=>{
+    setTimeout(()=>{
+      const {subj,body}=buildMsg(p);
+      window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(p.email)+
+        '&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
+    }, idx*400);
+  });
+}
+
+function sendAllMailto(){
+  const list=PIVOT.filter(p=>p.email);
+  if(!list.length){alert('Kisi ke paas email nahi hai.');return;}
+  // ek generic mail sab ko BCC — body me placeholder replace nahi ho sakta per-person
+  const subj=document.getElementById('subject').value;
+  const bcc=list.map(p=>p.email).join(',');
+  const url='mailto:?bcc='+encodeURIComponent(bcc)+'&su='+encodeURIComponent(subj);
+  window.location.href=url;
+}
+
+function copyAllEmails(){
+  const emails=PIVOT.filter(p=>p.email).map(p=>p.email).join(', ');
+  if(!emails){alert('Koi email nahi.');return;}
+  navigator.clipboard.writeText(emails).then(()=>alert('Copied! Ab mail app ke BCC me paste karo.'));
+}
+
+/* ---- persistence ---- */
+function saveEmails(){
+  const m={}; PIVOT.forEach(p=>{if(p.email)m[p.name]=p.email;});
+  localStorage.setItem('oe_emails',JSON.stringify(m));
+}
+function loadEmails(silent){
+  const raw=localStorage.getItem('oe_emails');
+  if(!raw){if(!silent)alert('Kuch saved nahi.');return;}
+  const m=JSON.parse(raw);
+  PIVOT.forEach(p=>{if(m[p.name])p.email=m[p.name];});
+  if(!silent)render();
+}
+function downloadCsv(){
+  let csv='Name,Amount,Count,Email\n';
+  PIVOT.forEach(p=>{csv+=`"${p.name}",${p.amount},${p.count},"${p.email||''}"\n`;});
+  const b=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='email_mapping.csv';a.click();
+}
+function importCsv(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const lines=ev.target.result.split('\n').slice(1);
+    const m={};
+    lines.forEach(l=>{
+      const mt=l.match(/^"?(.*?)"?,[^,]*,[^,]*,"?(.*?)"?$/);
+      if(mt&&mt[2])m[mt[1]]=mt[2].trim();
+    });
+    PIVOT.forEach(p=>{if(m[p.name])p.email=m[p.name];});
+    saveEmails();render();
+  };
+  r.readAsText(f);
+}
+</script>
+</body>
+</html>
