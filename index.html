@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Open Entry — Mailer</title>
+<title>Open Entry — Settlement Suite</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b1220;--bg2:#0f1a2e;
-    --panel:#ffffff;--panel-soft:#f4f7fb;
+    --panel:#fff;--panel-soft:#f4f7fb;
     --ink:#0f2038;--ink-soft:#5b6b82;--line:#e6ecf4;
     --blue:#2563eb;--blue-2:#1d4ed8;--blue-light:#3b82f6;--sky:#60a5fa;
-    --green:#16a34a;--amber:#d97706;--white:#fff;--white-dim:#c7d3e3;--warn:#d97706;
+    --green:#16a34a;--amber:#d97706;--pink:#db2777;--violet:#7c3aed;
+    --white:#fff;--white-dim:#c7d3e3;--warn:#d97706;
   }
   *{box-sizing:border-box}html,body{margin:0}
   body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--white);line-height:1.55;
@@ -23,85 +24,129 @@
       radial-gradient(900px 500px at 0% 0%, rgba(59,130,246,0.14), transparent 55%),
       linear-gradient(180deg,var(--bg),var(--bg2));
     background-attachment:fixed;}
-  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
-  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;
-    max-width:1120px;margin:0 auto}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;
+    max-width:1280px;margin:0 auto;flex-wrap:wrap;gap:14px}
   .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.3px}
   .logo{width:34px;height:34px;border-radius:9px;
     background:linear-gradient(135deg,var(--blue-light),var(--blue-2));
     display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(37,99,235,0.45)}
   .logo svg{width:18px;height:18px}
   .brand b{color:#fff}.brand span{color:var(--sky)}
+  .navmid{display:flex;gap:6px;background:rgba(255,255,255,0.06);padding:5px;border-radius:999px;
+    border:1px solid rgba(255,255,255,0.1)}
+  .navmid button{background:transparent;border:none;color:var(--white-dim);font-weight:700;
+    font-size:14px;padding:8px 20px;border-radius:999px;cursor:pointer;font-family:inherit}
+  .navmid button.active{background:linear-gradient(135deg,var(--blue-light),var(--blue-2));color:#fff;
+    box-shadow:0 6px 16px rgba(37,99,235,0.4)}
   .nav-up{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  input[type=file]{color:var(--white-dim);font-size:13px}
+  input[type=file]{color:var(--white-dim);font-size:13px;max-width:200px}
   .tag{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);
     border-radius:999px;padding:5px 14px;font-size:12px;color:var(--white-dim)}
-  .pill-btn{background:linear-gradient(135deg,var(--blue-light),var(--blue-2));color:#fff;border:none;
-    border-radius:999px;padding:10px 20px;font-weight:700;font-size:14px;cursor:pointer;
-    box-shadow:0 8px 22px rgba(37,99,235,0.4)}
 
-  .hero{text-align:center;padding:34px 20px 24px}
+  .hero{text-align:center;padding:30px 20px 22px}
   .eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--sky);font-weight:600;
-    font-size:15px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+    font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
   .eyebrow::before,.eyebrow::after{content:'';width:34px;height:1px;background:var(--sky);opacity:.6}
-  .hero h1{font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:-1px;margin:0}
+  .hero h1{font-size:clamp(28px,5vw,46px);font-weight:800;letter-spacing:-1px;margin:0}
   .hero h1 .accent{background:linear-gradient(90deg,var(--sky),var(--blue-light));
     -webkit-background-clip:text;background-clip:text;color:transparent}
   .hero p{color:var(--white-dim);font-size:16px;margin-top:10px}
 
   .card{background:var(--panel);color:var(--ink);border-radius:18px;padding:24px;margin-bottom:20px;
     box-shadow:0 14px 40px rgba(5,15,35,0.4)}
-  .card h3{margin:0 0 16px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px}
+  .card h3{margin:0 0 18px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px}
   .card h3::before{content:'';width:4px;height:16px;border-radius:2px;
     background:linear-gradient(180deg,var(--blue-light),var(--blue-2))}
-  .step{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--blue);text-transform:uppercase;
-    margin-bottom:6px}
+  .step{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:8px}
 
-  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-  label.lbl{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:5px;
-    letter-spacing:.5px;text-transform:uppercase;font-weight:700}
-  input[type=email],input[type=text]{background:var(--panel-soft);border:1px solid var(--line);
-    color:var(--ink);border-radius:10px;padding:10px 13px;font-size:14px;width:100%;
-    font-family:'Plus Jakarta Sans',sans-serif}
-  input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
-  textarea{width:100%;background:var(--panel-soft);border:1px solid var(--line);color:var(--ink);
-    border-radius:10px;padding:12px;font-size:14px;min-height:84px;font-family:'Plus Jakarta Sans',sans-serif}
-  textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:0 0 20px}
+  @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--panel);color:var(--ink);border-radius:18px;padding:22px;
+    box-shadow:0 14px 40px rgba(5,15,35,0.45);position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,var(--blue-light),var(--blue-2))}
+  .kpi.k2::after{background:linear-gradient(90deg,#22c55e,#16a34a)}
+  .kpi.k3::after{background:linear-gradient(90deg,#f472b6,#db2777)}
+  .kpi.k4::after{background:linear-gradient(90deg,#fbbf24,#d97706)}
+  .kpi .ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;font-size:20px;background:rgba(37,99,235,0.1);color:var(--blue)}
+  .kpi.k2 .ico{background:rgba(22,163,74,0.1);color:var(--green)}
+  .kpi.k3 .ico{background:rgba(219,39,119,0.1);color:var(--pink)}
+  .kpi.k4 .ico{background:rgba(217,119,6,0.1);color:var(--amber)}
+  .kpi .lbl{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+  .kpi .val{font-size:27px;font-weight:800;margin-top:4px;letter-spacing:-.5px}
 
-  button{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;border:none;border-radius:10px;
-    padding:10px 18px;font-size:14px;cursor:pointer;color:#fff;
-    background:linear-gradient(135deg,var(--blue-light),var(--blue-2));box-shadow:0 8px 20px rgba(37,99,235,0.35)}
-  button:hover{transform:translateY(-1px)}
+  .grid2{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;margin-bottom:18px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+  .bar-name{width:150px;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;font-weight:600}
+  .bar-track{flex:1;height:22px;background:var(--panel-soft);border-radius:8px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--sky),var(--blue-2));transition:width .6s ease}
+  .bar-val{width:96px;text-align:right;font-size:13px;color:var(--blue);font-weight:700;font-variant-numeric:tabular-nums}
+
+  .donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center}
+  .legend{flex:1;min-width:170px}
+  .share-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:7px 0;
+    border-bottom:1px solid var(--line)}
+  .share-row:last-child{border-bottom:none}
+  .share-row .n{color:var(--ink);font-weight:600;display:flex;align-items:center}
+  .share-row .p{color:var(--blue);font-weight:700;font-variant-numeric:tabular-nums}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px}
+
+  .filterbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  input[type=text],input[type=email],select,textarea{background:var(--panel-soft);border:1px solid var(--line);
+    color:var(--ink);border-radius:10px;padding:10px 13px;font-size:14px;font-family:inherit}
+  textarea{width:100%;min-height:84px}
+  input[type=email]{width:100%}
+  input::placeholder{color:var(--ink-soft)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
+  input.search{flex:1;min-width:230px}
+  label.lbl{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:5px;letter-spacing:.5px;
+    text-transform:uppercase;font-weight:700}
+  button.btn{font-family:inherit;font-weight:700;border:none;border-radius:10px;padding:10px 18px;font-size:14px;
+    cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--blue-light),var(--blue-2));
+    box-shadow:0 8px 20px rgba(37,99,235,0.35)}
+  button.btn:hover{transform:translateY(-1px)}
   button.ghost{background:#fff;color:var(--blue);border:1px solid var(--line);box-shadow:none}
+  button.green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 20px rgba(22,163,74,0.35)}
   button.mini{padding:7px 13px;font-size:12px}
   button.eye{background:#fff;color:var(--blue);border:1px solid var(--line);box-shadow:none;padding:6px 12px;font-size:12px}
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;align-items:center}
   .hint{color:var(--ink-soft);font-size:13px;margin-top:9px}
   .hint code{color:var(--blue);background:rgba(37,99,235,0.08);padding:1px 6px;border-radius:5px}
 
+  table{width:100%;border-collapse:collapse;font-size:13.5px;color:var(--ink)}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;color:var(--green);font-weight:700}
+  tbody tr:hover td{background:var(--panel-soft)}
+  th.sortable{cursor:pointer;user-select:none;position:sticky;top:0;background:#fff}
+  th.sortable:hover{color:var(--blue)}
+  .tbl-scroll{max-height:500px;overflow:auto;border:1px solid var(--line);border-radius:14px}
+  .count-note{font-size:13px;color:var(--ink-soft);margin-top:12px}
+  .noemail input{border-color:var(--warn);box-shadow:0 0 0 3px rgba(217,119,6,0.12)}
+  a.mailbtn{text-decoration:none;padding:6px 13px;border-radius:8px;font-size:12px;font-weight:700;
+    display:inline-block;margin-left:6px;color:#fff;background:linear-gradient(135deg,var(--blue-light),var(--blue-2))}
+  a.mailbtn.dim{background:#cbd5e1;pointer-events:none}
   .stats{display:flex;gap:14px;flex-wrap:wrap}
   .pill{flex:1;min-width:150px;background:var(--panel-soft);padding:14px 16px;border-radius:12px;
     font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
   .pill b{display:block;font-size:22px;margin-top:4px;color:var(--ink);letter-spacing:0}
 
-  table.grid{width:100%;border-collapse:collapse;font-size:14px;color:var(--ink)}
-  table.grid th,table.grid td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
-  table.grid th{color:var(--ink-soft);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px}
-  table.grid td.num{text-align:right;font-variant-numeric:tabular-nums;color:var(--green);font-weight:700}
-  table.grid tr:hover td{background:var(--panel-soft)}
-  .noemail input{border-color:var(--warn);box-shadow:0 0 0 3px rgba(217,119,6,0.12)}
-  a.mailbtn{text-decoration:none;padding:6px 13px;border-radius:8px;font-size:12px;font-weight:700;
-    display:inline-block;margin-left:6px;color:#fff;
-    background:linear-gradient(135deg,var(--blue-light),var(--blue-2))}
-  a.mailbtn.dim{background:#cbd5e1;color:#fff;pointer-events:none}
-
   .modal{position:fixed;inset:0;background:rgba(6,12,26,0.7);display:none;align-items:center;
     justify-content:center;padding:20px;z-index:20}
   .modal .box{background:#fff;color:var(--ink);border-radius:16px;max-width:880px;width:100%;
     max-height:85vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-  pre{background:var(--panel-soft);border:1px solid var(--line);border-radius:10px;padding:15px;
-    overflow:auto;font-size:12.5px;white-space:pre;color:var(--ink);
-    font-family:ui-monospace,Consolas,monospace}
+  pre{background:var(--panel-soft);border:1px solid var(--line);border-radius:10px;padding:15px;overflow:auto;
+    font-size:12.5px;white-space:pre;color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+  .empty{text-align:center;color:var(--white-dim);padding:60px 0;background:rgba(255,255,255,0.04);
+    border:1px dashed rgba(255,255,255,0.15);border-radius:18px;margin-bottom:20px}
+  footer{text-align:center;color:var(--white-dim);font-size:13px;padding:26px 0 12px}
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -110,89 +155,154 @@
       <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 10l4 2 4-2" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       <b>Open</b><span>Entry</span>
     </div>
+    <div class="navmid">
+      <button id="tabDash" class="active" onclick="showTab('dash')">Dashboard</button>
+      <button id="tabMail" onclick="showTab('mail')">Mailer</button>
+    </div>
     <div class="nav-up">
       <input type="file" id="file" accept=".xlsx,.xls">
-      <span class="tag" id="fileInfo">no file loaded</span>
+      <span class="tag" id="fileInfo">no file</span>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="hero">
-      <div class="eyebrow">Settlement Mailer</div>
-      <h1>Send <span class="accent">Confirmation Mails</span></h1>
-      <p>Upload the sheet, map emails, and send each institute its transaction table.</p>
+    <div id="empty" class="empty">Upload the OPEN ENTRY .xlsx to load your data.</div>
+
+    <!-- ========== DASHBOARD ========== -->
+    <div id="viewDash" class="hidden">
+      <div class="hero">
+        <div class="eyebrow">Settlement Analytics</div>
+        <h1>Open Entry <span class="accent">Dashboard</span></h1>
+        <p>Live view of institute settlements — export a summary for leadership below.</p>
+      </div>
+
+      <div style="text-align:center;margin-bottom:22px">
+        <button class="btn green" onclick="exportExec()">📤 Export Executive Summary (for CEO)</button>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi k1"><div class="ico">₹</div><div class="lbl">Total Settled</div><div class="val" id="kAmt">₹0</div></div>
+        <div class="kpi k2"><div class="ico">⇄</div><div class="lbl">Transactions</div><div class="val" id="kTx">0</div></div>
+        <div class="kpi k3"><div class="ico">🏛</div><div class="lbl">Institutes</div><div class="val" id="kGrp">0</div></div>
+        <div class="kpi k4"><div class="ico">Ø</div><div class="lbl">Avg / Txn</div><div class="val" id="kAvg">₹0</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card"><h3>Top Institutes by Amount</h3><div id="bars"></div></div>
+        <div class="card"><h3>Share of Total</h3>
+          <div class="donut-wrap">
+            <svg id="donut" width="170" height="170" viewBox="0 0 42 42"></svg>
+            <div class="legend" id="share"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Transactions</h3>
+        <div class="filterbar">
+          <input type="text" class="search" id="search" placeholder="Search PAY ID, UTR, A/C, remark…" oninput="applyFilters()">
+          <select id="fRemark" onchange="applyFilters()"><option value="">All institutes</option></select>
+          <input type="text" id="minAmt" placeholder="Min ₹" style="width:110px" oninput="applyFilters()">
+          <input type="text" id="maxAmt" placeholder="Max ₹" style="width:110px" oninput="applyFilters()">
+          <button class="btn ghost" onclick="clearFilters()">Clear</button>
+          <button class="btn" onclick="exportCsv()">⬇ Export CSV</button>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr>
+              <th class="sortable" onclick="sortBy('payid')">PAY ID</th>
+              <th class="sortable" onclick="sortBy('amount')" style="text-align:right">Amount</th>
+              <th class="sortable" onclick="sortBy('acc')">A/C NO</th>
+              <th class="sortable" onclick="sortBy('ifsc')">IFSC</th>
+              <th class="sortable" onclick="sortBy('utr')">UTR / BANK REF</th>
+              <th class="sortable" onclick="sortBy('date')">Date</th>
+              <th class="sortable" onclick="sortBy('remark')">Remark</th>
+            </tr></thead>
+            <tbody id="txBody"></tbody>
+          </table>
+        </div>
+        <div class="count-note" id="countNote"></div>
+      </div>
     </div>
 
-    <div id="results" style="display:none">
+    <!-- ========== MAILER ========== -->
+    <div id="viewMail" class="hidden">
+      <div class="hero">
+        <div class="eyebrow">Settlement Mailer</div>
+        <h1>Send <span class="accent">Confirmation Mails</span></h1>
+        <p>Map emails and send each institute its own transaction table.</p>
+      </div>
+
       <div class="card">
         <div class="step">Overview</div>
         <div class="stats">
-          <div class="pill">Records<b id="totRec">0</b></div>
-          <div class="pill">Total Amount<b id="totAmt">₹0</b></div>
-          <div class="pill">Institutes<b id="totGrp">0</b></div>
+          <div class="pill">Records<b id="mRec">0</b></div>
+          <div class="pill">Total Amount<b id="mAmt">₹0</b></div>
+          <div class="pill">Institutes<b id="mGrp">0</b></div>
         </div>
       </div>
 
       <div class="card">
         <div class="step">Message</div>
-        <div class="row" style="margin-bottom:14px">
-          <div style="flex:1;min-width:240px">
-            <label class="lbl">Email Subject</label>
-            <input type="text" id="subject" value="Open Entry Settlement - Payment Confirmation">
-          </div>
-          <div style="flex:1;min-width:200px">
-            <label class="lbl">Signature</label>
-            <input type="text" id="sender" value="Ganesh, GrayQuest">
-          </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+          <div style="flex:1;min-width:240px"><label class="lbl">Email Subject</label>
+            <input type="text" id="subject" value="Open Entry Settlement - Payment Confirmation" style="width:100%"></div>
+          <div style="flex:1;min-width:200px"><label class="lbl">Signature</label>
+            <input type="text" id="sender" value="Ganesh, GrayQuest" style="width:100%"></div>
         </div>
         <label class="lbl">Intro — <code>{name}</code> <code>{amount}</code> <code>{count}</code> auto-replace; table drops in below</label>
         <textarea id="body">Dear {name},
 
 We confirm the settlement of {count} transaction(s) amounting to Rs. {amount}. Details below:</textarea>
-
         <div class="toolbar">
-          <button class="ghost mini" onclick="saveEmails()">Save emails</button>
-          <button class="ghost mini" onclick="loadEmails()">Load saved</button>
-          <button class="ghost mini" onclick="downloadCsv()">Email CSV</button>
-          <input type="file" id="csvIn" accept=".csv" style="display:none" onchange="importCsv(event)">
-          <button class="ghost mini" onclick="document.getElementById('csvIn').click()">CSV import</button>
+          <button class="btn ghost mini" onclick="saveEmails()">Save emails</button>
+          <button class="btn ghost mini" onclick="loadEmails()">Load saved</button>
+          <button class="btn ghost mini" onclick="downloadEmailCsv()">Email CSV</button>
+          <input type="file" id="csvIn" accept=".csv" style="display:none" onchange="importEmailCsv(event)">
+          <button class="btn ghost mini" onclick="document.getElementById('csvIn').click()">CSV import</button>
         </div>
-
-        <table class="grid">
+        <table>
           <thead><tr><th>Institute / Parent</th><th class="num">Amount</th><th class="num">Txns</th>
             <th style="min-width:220px">Email</th><th>Action</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
-        <div class="hint">Emails save in your browser. Hit Preview to see exactly what the mail contains.</div>
+        <div class="hint">Emails save in your browser. Preview shows exactly what will be sent.</div>
       </div>
 
       <div class="card">
         <div class="step">Dispatch</div>
         <div class="toolbar">
-          <button onclick="sendAllGmail()">✉ Open all Gmail drafts</button>
-          <button class="ghost" onclick="copyAllEmails()">Copy all emails (BCC)</button>
+          <button class="btn" onclick="sendAllGmail()">✉ Open all Gmail drafts</button>
+          <button class="btn ghost" onclick="copyAllEmails()">Copy all emails (BCC)</button>
         </div>
-        <div class="hint">Gmail compose takes plain text only — table is monospace-aligned. Each institute opens in its own tab with its own table; just hit Send. For bordered HTML tables + one-click auto-send, use the Apps Script version.</div>
+        <div class="hint">Gmail compose takes plain text (table is aligned). For bordered HTML tables + one-click auto-send, use the Apps Script version.</div>
       </div>
     </div>
 
-    <div id="pre" class="card" style="text-align:center;color:var(--ink-soft)">
-      Upload the OPEN ENTRY .xlsx to begin.
-    </div>
+    <footer>Open Entry Settlement Suite · GrayQuest</footer>
   </div>
 
   <div class="modal" id="modal" onclick="if(event.target.id==='modal')closeModal()">
     <div class="box">
-      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
         <b id="mTitle" style="color:var(--blue)">Preview</b>
-        <button class="ghost mini" onclick="closeModal()">✕ Close</button>
+        <button class="btn ghost mini" onclick="closeModal()">✕ Close</button>
       </div>
       <pre id="mBody"></pre>
     </div>
   </div>
 
 <script>
-let GROUPS={},ORDER=[];
+let TX=[],FILTERED=[],GROUPS={},ORDER=[],sortKey='amount',sortDir=-1;
+const PALETTE=['#2563eb','#3b82f6','#60a5fa','#16a34a','#d97706','#db2777','#7c3aed'];
+
+function showTab(t){
+  document.getElementById('tabDash').classList.toggle('active',t==='dash');
+  document.getElementById('tabMail').classList.toggle('active',t==='mail');
+  document.getElementById('viewDash').classList.toggle('hidden',t!=='dash'||!TX.length);
+  document.getElementById('viewMail').classList.toggle('hidden',t!=='mail'||!TX.length);
+}
+
 document.getElementById('file').addEventListener('change', handleFile);
 function handleFile(e){
   const f=e.target.files[0]; if(!f)return;
@@ -201,134 +311,221 @@ function handleFile(e){
   reader.onload=ev=>{
     const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array',cellDates:true});
     let sn=wb.SheetNames.find(n=>n.toUpperCase().includes('DATA'))||wb.SheetNames[wb.SheetNames.length-1];
-    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
-    build(rows);
+    parse(XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''}));
   };
   reader.readAsArrayBuffer(f);
 }
-function col(row,keys){
-  for(const k of Object.keys(row)){
-    const kn=k.toString().toUpperCase().replace(/[^A-Z]/g,'');
-    for(const w of keys){ if(kn.includes(w)) return row[k]; }
-  }
-  return '';
-}
-function fmtDate(v){
-  if(v instanceof Date && !isNaN(v)){
-    const d=String(v.getDate()).padStart(2,'0');
-    const m=String(v.getMonth()+1).padStart(2,'0');
-    return `${d}/${m}/${v.getFullYear()}`;
-  }
-  return (v||'').toString();
-}
-function build(rows){
-  GROUPS={};ORDER=[];
+function col(row,keys){for(const k of Object.keys(row)){const kn=k.toString().toUpperCase().replace(/[^A-Z]/g,'');for(const w of keys)if(kn.includes(w))return row[k];}return '';}
+function fmtDate(v){if(v instanceof Date&&!isNaN(v)){const d=String(v.getDate()).padStart(2,'0');const m=String(v.getMonth()+1).padStart(2,'0');return `${d}/${m}/${v.getFullYear()}`;}return (v||'').toString();}
+function inr(n){return '₹'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function inrPlain(n){return Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function inrShort(n){n=Number(n);if(n>=1e7)return '₹'+(n/1e7).toFixed(2)+' Cr';if(n>=1e5)return '₹'+(n/1e5).toFixed(2)+' L';if(n>=1e3)return '₹'+(n/1e3).toFixed(1)+' K';return '₹'+n.toFixed(0);}
+function escq(s){return s.replace(/'/g,"\\'");}
+
+function parse(rows){
+  TX=[];GROUPS={};ORDER=[];
   for(const r of rows){
     let name=(col(r,['REMARK'])||'').toString().trim();
     if(!name) name=(col(r,['PAYERNAME','PAYER'])||'').toString().trim();
     if(!name) continue;
-    let amt=parseFloat((col(r,['AMOUNT'])+'').replace(/[^0-9.\-]/g,''))||0;
+    const amt=parseFloat((col(r,['AMOUNT'])+'').replace(/[^0-9.\-]/g,''))||0;
+    const t={payid:(col(r,['PAYID'])||'').toString(),amount:amt,acc:(col(r,['ACNO'])||'').toString(),
+      ifsc:(col(r,['IFSC'])||'').toString(),utr:(col(r,['UTR','BANKREF'])||'').toString(),
+      date:fmtDate(col(r,['DATE'])),remark:name};
+    TX.push(t);
     if(!GROUPS[name]){GROUPS[name]={name,amount:0,count:0,email:'',txns:[]};ORDER.push(name);}
-    const g=GROUPS[name];g.amount+=amt;g.count++;
-    g.txns.push({payid:(col(r,['PAYID'])||'').toString(),amount:amt,
-      acc:(col(r,['ACNO'])||'').toString(),ifsc:(col(r,['IFSC'])||'').toString(),
-      utr:(col(r,['UTR','BANKREF'])||'').toString(),date:fmtDate(col(r,['DATE'])),remark:name});
+    GROUPS[name].amount+=amt;GROUPS[name].count++;GROUPS[name].txns.push(t);
   }
   ORDER.sort((a,b)=>GROUPS[b].amount-GROUPS[a].amount);
-  loadEmails(true);render();
-  document.getElementById('pre').style.display='none';
-  document.getElementById('results').style.display='block';
+  document.getElementById('empty').classList.add('hidden');
+  loadEmails(true);
+  buildKpis();buildBars();buildShare();fillRemarkFilter();applyFilters();renderMailer();
+  showTab(document.getElementById('tabMail').classList.contains('active')?'mail':'dash');
 }
-function inr(n){return n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function escq(s){return s.replace(/'/g,"\\'");}
-function render(){
+
+/* ---- dashboard ---- */
+function groupSums(){const m={};TX.forEach(t=>{m[t.remark]=(m[t.remark]||0)+t.amount;});return Object.entries(m).map(([name,amount])=>({name,amount})).sort((a,b)=>b.amount-a.amount);}
+function buildKpis(){
+  const total=TX.reduce((s,t)=>s+t.amount,0);
+  document.getElementById('kAmt').textContent=inrShort(total);
+  document.getElementById('kTx').textContent=TX.length;
+  document.getElementById('kGrp').textContent=new Set(TX.map(t=>t.remark)).size;
+  document.getElementById('kAvg').textContent=inrShort(TX.length?total/TX.length:0);
+}
+function buildBars(){
+  const g=groupSums().slice(0,8);const max=g.length?g[0].amount:1;
+  document.getElementById('bars').innerHTML=g.map(x=>`<div class="bar-row">
+    <div class="bar-name" title="${x.name}">${x.name}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${(x.amount/max*100).toFixed(1)}%"></div></div>
+    <div class="bar-val">${inrShort(x.amount)}</div></div>`).join('');
+}
+function buildShare(){
+  const g=groupSums();const total=g.reduce((s,x)=>s+x.amount,0)||1;
+  const top=g.slice(0,6);const rest=g.slice(6).reduce((s,x)=>s+x.amount,0);
+  const segs=top.map((x,i)=>({name:x.name,pct:x.amount/total*100,color:PALETTE[i%PALETTE.length]}));
+  if(rest>0)segs.push({name:`Others (${g.length-6})`,pct:rest/total*100,color:'#94a3b8'});
+  // donut
+  let off=25,svg='';
+  segs.forEach(s=>{
+    svg+=`<circle r="15.915" cx="21" cy="21" fill="transparent" stroke="${s.color}" stroke-width="6"
+      stroke-dasharray="${s.pct.toFixed(2)} ${(100-s.pct).toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"></circle>`;
+    off=(off-s.pct+100)%100;
+  });
+  document.getElementById('donut').innerHTML=svg;
+  document.getElementById('share').innerHTML=segs.map(s=>`<div class="share-row">
+    <span class="n"><span class="dot" style="background:${s.color}"></span>${s.name}</span>
+    <span class="p">${s.pct.toFixed(1)}%</span></div>`).join('');
+}
+function fillRemarkFilter(){
+  const names=[...new Set(TX.map(t=>t.remark))].sort();
+  document.getElementById('fRemark').innerHTML='<option value="">All institutes</option>'+names.map(n=>`<option>${n}</option>`).join('');
+}
+function applyFilters(){
+  const q=document.getElementById('search').value.toLowerCase().trim();
+  const rem=document.getElementById('fRemark').value;
+  const mn=parseFloat(document.getElementById('minAmt').value)||-Infinity;
+  const mx=parseFloat(document.getElementById('maxAmt').value)||Infinity;
+  FILTERED=TX.filter(t=>{
+    if(rem&&t.remark!==rem)return false;
+    if(t.amount<mn||t.amount>mx)return false;
+    if(q){const hay=(t.payid+' '+t.utr+' '+t.acc+' '+t.ifsc+' '+t.remark).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  sortData();renderTable();
+}
+function clearFilters(){['search','minAmt','maxAmt'].forEach(id=>document.getElementById(id).value='');document.getElementById('fRemark').value='';applyFilters();}
+function sortBy(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='amount')?-1:1;}sortData();renderTable();}
+function sortData(){FILTERED.sort((a,b)=>{let x=a[sortKey],y=b[sortKey];if(sortKey==='amount')return (x-y)*sortDir;return (''+x).localeCompare(''+y)*sortDir;});}
+function renderTable(){
+  document.getElementById('txBody').innerHTML=FILTERED.map(t=>`<tr><td>${t.payid}</td>
+    <td class="num">${inr(t.amount)}</td><td>${t.acc}</td><td>${t.ifsc}</td>
+    <td>${t.utr}</td><td>${t.date}</td><td>${t.remark}</td></tr>`).join('');
+  const sum=FILTERED.reduce((s,t)=>s+t.amount,0);
+  document.getElementById('countNote').textContent=`Showing ${FILTERED.length} of ${TX.length} transactions · Filtered total: ${inr(sum)}`;
+}
+function exportCsv(){
+  let csv='PAY ID,Amount,A/C NO,IFSC,UTR,Date,Remark\n';
+  FILTERED.forEach(t=>{csv+=`"${t.payid}",${t.amount},"${t.acc}","${t.ifsc}","${t.utr}","${t.date}","${t.remark}"\n`;});
+  dl(csv,'filtered_transactions.csv','text/csv');
+}
+function dl(content,name,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
+
+/* ---- CEO executive summary export (standalone HTML) ---- */
+function exportExec(){
+  if(!TX.length){alert('Upload a sheet first.');return;}
+  const total=TX.reduce((s,t)=>s+t.amount,0);
+  const groups=new Set(TX.map(t=>t.remark)).size;
+  const g=groupSums();
+  const top=g.slice(0,10);
+  const max=top.length?top[0].amount:1;
+  const gt=g.reduce((s,x)=>s+x.amount,0)||1;
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+  const bars=top.map(x=>`<tr>
+    <td style="padding:8px 10px;font-weight:600;color:#0f2038">${x.name}</td>
+    <td style="padding:8px 10px;width:55%">
+      <div style="background:#eef2f7;border-radius:6px;overflow:hidden;height:18px">
+        <div style="height:100%;width:${(x.amount/max*100).toFixed(1)}%;background:linear-gradient(90deg,#60a5fa,#1d4ed8)"></div>
+      </div></td>
+    <td style="padding:8px 10px;text-align:right;font-weight:700;color:#1d4ed8;white-space:nowrap">${inr(x.amount)}</td>
+    <td style="padding:8px 10px;text-align:right;color:#5b6b82">${(x.amount/gt*100).toFixed(1)}%</td>
+  </tr>`).join('');
+
+  const kpi=(lbl,val,color)=>`<td style="padding:6px">
+    <div style="background:#fff;border-radius:14px;padding:18px;border-top:4px solid ${color};box-shadow:0 6px 18px rgba(5,15,35,0.08)">
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#5b6b82;font-weight:600">${lbl}</div>
+      <div style="font-size:24px;font-weight:800;color:#0f2038;margin-top:4px">${val}</div></div></td>`;
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open Entry — Executive Summary (${today})</title>
+<style>body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(180deg,#0b1220,#0f1a2e);padding:30px 16px;color:#fff}
+.sheet{max-width:760px;margin:0 auto}
+.head{text-align:center;margin-bottom:24px}
+.head .brand{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#60a5fa;font-weight:700}
+.head h1{font-size:30px;margin:6px 0 2px;font-weight:800}
+.head .date{color:#c7d3e3;font-size:14px}
+.panel{background:#fff;color:#0f2038;border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 14px 40px rgba(5,15,35,0.4)}
+.panel h3{margin:0 0 14px;font-size:15px;color:#0f2038}
+table{width:100%;border-collapse:collapse;font-size:13px}
+.foot{text-align:center;color:#c7d3e3;font-size:12px;padding-top:8px}</style></head>
+<body><div class="sheet">
+<div class="head"><div class="brand">Open Entry · Settlement Report</div>
+<h1>Executive Summary</h1><div class="date">As of ${today}</div></div>
+<table style="width:100%;border-collapse:separate;border-spacing:0"><tr>
+${kpi('Total Settled',inrShort(total),'#1d4ed8')}
+${kpi('Transactions',TX.length,'#16a34a')}
+${kpi('Institutes',groups,'#db2777')}
+${kpi('Avg / Txn',inrShort(total/TX.length),'#d97706')}
+</tr></table>
+<div class="panel"><h3>Top Institutes by Settlement Amount</h3>
+<table><tbody>${bars}</tbody></table></div>
+<div class="panel" style="background:#f4f7fb"><h3>Grand Total</h3>
+<div style="font-size:26px;font-weight:800;color:#1d4ed8">${inr(total)}</div>
+<div style="color:#5b6b82;font-size:13px;margin-top:4px">${TX.length} transactions across ${groups} institutes</div></div>
+<div class="foot">Generated from Open Entry Settlement Suite · GrayQuest · confidential</div>
+</div></body></html>`;
+
+  dl(html,`Open_Entry_Executive_Summary_${today.replace(/ /g,'_')}.html`,'text/html');
+}
+
+/* ---- mailer ---- */
+function renderMailer(){
   const tb=document.getElementById('rows');tb.innerHTML='';
   let ta=0,tr=0;
   ORDER.forEach((name,i)=>{
     const g=GROUPS[name];ta+=g.amount;tr+=g.count;
     const row=document.createElement('tr');
-    row.innerHTML=`<td>${g.name}</td><td class="num">₹${inr(g.amount)}</td><td class="num" style="color:var(--ink)">${g.count}</td>
+    row.innerHTML=`<td>${g.name}</td><td class="num">₹${inrPlain(g.amount)}</td>
+      <td class="num" style="color:var(--ink)">${g.count}</td>
       <td class="${g.email?'':'noemail'}"><input type="email" placeholder="email@institute.com" value="${g.email||''}" oninput="setEmail('${escq(name)}',this.value)"></td>
       <td style="white-space:nowrap"><button class="eye" onclick="preview('${escq(name)}')">Preview</button>
       <a class="mailbtn ${g.email?'':'dim'}" id="mb_${i}" href="#" onclick="return gmail('${escq(name)}')">Gmail</a></td>`;
     tb.appendChild(row);
   });
-  document.getElementById('totAmt').textContent='₹'+inr(ta);
-  document.getElementById('totRec').textContent=tr;
-  document.getElementById('totGrp').textContent=ORDER.length;
+  document.getElementById('mAmt').textContent='₹'+inrPlain(ta);
+  document.getElementById('mRec').textContent=tr;
+  document.getElementById('mGrp').textContent=ORDER.length;
 }
-function setEmail(name,v){
-  GROUPS[name].email=v.trim();saveEmails();
-  const idx=ORDER.indexOf(name);const mb=document.getElementById('mb_'+idx);
-  if(mb)mb.className='mailbtn '+(v.trim()?'':'dim');
-}
-function buildTable(g){
+function setEmail(name,v){GROUPS[name].email=v.trim();saveEmails();const idx=ORDER.indexOf(name);const mb=document.getElementById('mb_'+idx);if(mb)mb.className='mailbtn '+(v.trim()?'':'dim');}
+function buildTxTable(g){
   const heads=['PAY ID','Amount','A/C NO','IFSC','UTR / BANK REF','Date','Remark'];
-  const data=g.txns.map(t=>[t.payid,inr(t.amount),t.acc,t.ifsc,t.utr,t.date,t.remark]);
-  const all=[heads,...data];
-  const w=heads.map((_,c)=>Math.max(...all.map(r=>(r[c]||'').toString().length)));
+  const data=g.txns.map(t=>[t.payid,inrPlain(t.amount),t.acc,t.ifsc,t.utr,t.date,t.remark]);
+  const all=[heads,...data];const w=heads.map((_,c)=>Math.max(...all.map(r=>(r[c]||'').toString().length)));
   const line=r=>r.map((c,i)=>(c||'').toString().padEnd(w[i])).join(' | ');
   const sep=w.map(x=>'-'.repeat(x)).join('-+-');
-  let out=line(heads)+'\n'+sep+'\n';
-  data.forEach(r=>out+=line(r)+'\n');
-  out+=sep+'\n'+'TOTAL'.padEnd(w[0])+' | '+inr(g.amount).padEnd(w[1])+' | '+g.count+' txns\n';
+  let out=line(heads)+'\n'+sep+'\n';data.forEach(r=>out+=line(r)+'\n');
+  out+=sep+'\n'+'TOTAL'.padEnd(w[0])+' | '+inrPlain(g.amount).padEnd(w[1])+' | '+g.count+' txns\n';
   return out;
 }
 function buildMsg(g){
-  const subj=document.getElementById('subject').value;
-  const sender=document.getElementById('sender').value;
-  let intro=document.getElementById('body').value
-    .replaceAll('{name}',g.name).replaceAll('{amount}',inr(g.amount))
-    .replaceAll('{count}',g.count).replaceAll('{sender}',sender);
-  return {subj,body:intro+'\n\n'+buildTable(g)+'\nRegards,\n'+sender};
+  const subj=document.getElementById('subject').value;const sender=document.getElementById('sender').value;
+  let intro=document.getElementById('body').value.replaceAll('{name}',g.name).replaceAll('{amount}',inrPlain(g.amount)).replaceAll('{count}',g.count).replaceAll('{sender}',sender);
+  return {subj,body:intro+'\n\n'+buildTxTable(g)+'\nRegards,\n'+sender};
 }
-function preview(name){
-  const g=GROUPS[name];const {subj,body}=buildMsg(g);
+function preview(name){const g=GROUPS[name];const {subj,body}=buildMsg(g);
   document.getElementById('mTitle').textContent=g.name+'  →  '+(g.email||'(email not set)');
   document.getElementById('mBody').textContent='Subject: '+subj+'\n\n'+body;
-  document.getElementById('modal').style.display='flex';
-}
+  document.getElementById('modal').style.display='flex';}
 function closeModal(){document.getElementById('modal').style.display='none';}
-function gmail(name){
-  const g=GROUPS[name];if(!g.email){alert('Set an email first.');return false;}
+function gmail(name){const g=GROUPS[name];if(!g.email){alert('Set an email first.');return false;}
   const {subj,body}=buildMsg(g);
-  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(g.email)+
-    '&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
-  return false;
-}
+  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(g.email)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');return false;}
 function sendAllGmail(){
-  const list=ORDER.filter(n=>GROUPS[n].email);
-  if(!list.length){alert('No emails set.');return;}
-  if(!confirm(list.length+' Gmail tabs will open (each with its own table). Allow popups. Continue?'))return;
-  list.forEach((n,idx)=>{setTimeout(()=>{
-    const {subj,body}=buildMsg(GROUPS[n]);
-    window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(GROUPS[n].email)+
-      '&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
-  },idx*500);});
+  const list=ORDER.filter(n=>GROUPS[n].email);if(!list.length){alert('No emails set.');return;}
+  if(!confirm(list.length+' Gmail tabs will open. Allow popups. Continue?'))return;
+  list.forEach((n,idx)=>{setTimeout(()=>{const {subj,body}=buildMsg(GROUPS[n]);
+    window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(GROUPS[n].email)+'&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');},idx*500);});
 }
-function copyAllEmails(){
-  const e=ORDER.filter(n=>GROUPS[n].email).map(n=>GROUPS[n].email).join(', ');
-  if(!e){alert('No emails set.');return;}
-  navigator.clipboard.writeText(e).then(()=>alert('Copied!'));
-}
+function copyAllEmails(){const e=ORDER.filter(n=>GROUPS[n].email).map(n=>GROUPS[n].email).join(', ');if(!e){alert('No emails set.');return;}navigator.clipboard.writeText(e).then(()=>alert('Copied!'));}
 function saveEmails(){const m={};ORDER.forEach(n=>{if(GROUPS[n].email)m[n]=GROUPS[n].email;});localStorage.setItem('oe_emails',JSON.stringify(m));}
-function loadEmails(silent){
-  const raw=localStorage.getItem('oe_emails');if(!raw){if(!silent)alert('Nothing saved.');return;}
-  const m=JSON.parse(raw);ORDER.forEach(n=>{if(m[n])GROUPS[n].email=m[n];});if(!silent)render();
-}
-function downloadCsv(){
-  let csv='Name,Amount,Count,Email\n';
-  ORDER.forEach(n=>{const g=GROUPS[n];csv+=`"${g.name}",${g.amount},${g.count},"${g.email||''}"\n`;});
-  const b=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');
-  a.href=URL.createObjectURL(b);a.download='email_mapping.csv';a.click();
-}
-function importCsv(e){
-  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+function loadEmails(silent){const raw=localStorage.getItem('oe_emails');if(!raw){if(!silent)alert('Nothing saved.');return;}const m=JSON.parse(raw);ORDER.forEach(n=>{if(m[n])GROUPS[n].email=m[n];});if(!silent)renderMailer();}
+function downloadEmailCsv(){let csv='Name,Amount,Count,Email\n';ORDER.forEach(n=>{const g=GROUPS[n];csv+=`"${g.name}",${g.amount},${g.count},"${g.email||''}"\n`;});dl(csv,'email_mapping.csv','text/csv');}
+function importEmailCsv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
   r.onload=ev=>{const lines=ev.target.result.split('\n').slice(1);const m={};
     lines.forEach(l=>{const mt=l.match(/^"?(.*?)"?,[^,]*,[^,]*,"?(.*?)"?$/);if(mt&&mt[2])m[mt[1]]=mt[2].trim();});
-    ORDER.forEach(n=>{if(m[n])GROUPS[n].email=m[n];});saveEmails();render();};
-  r.readAsText(f);
-}
+    ORDER.forEach(n=>{if(m[n])GROUPS[n].email=m[n];});saveEmails();renderMailer();};
+  r.readAsText(f);}
 </script>
 </body>
 </html>
