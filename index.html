@@ -115,35 +115,86 @@ html_content = '''<!DOCTYPE html>
     font-weight: 600;
   }
 
-  /* G-SHEET DIRECT BAR */
+  /* G-SHEET MULTI-SYNC BAR */
   .gsheet-bar {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
-    padding: 10px 14px;
+    border-radius: 14px;
+    padding: 12px 16px;
     margin: 16px 0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
+  }
+  .gsheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .gsheet-presets {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .preset-btn {
+    background: rgba(37,99,235,0.15);
+    border: 1px solid rgba(96,165,250,0.3);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .preset-btn:hover {
+    background: rgba(37,99,235,0.35);
+    border-color: var(--sky);
+    transform: translateY(-1px);
+  }
+  .preset-btn.active {
+    background: linear-gradient(135deg, var(--blue-light), var(--blue-2));
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+  }
+  .gsheet-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
     flex-wrap: wrap;
   }
-  .gsheet-bar input {
+  .gsheet-input-row select {
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .gsheet-input-row input {
     flex: 1;
-    min-width: 260px;
-    background: rgba(15,23,42,0.6);
+    min-width: 240px;
+    background: rgba(15,23,42,0.7);
     border: 1px solid rgba(255,255,255,0.15);
     color: #fff;
     border-radius: 8px;
     padding: 7px 12px;
     font-size: 12.5px;
   }
-  .gsheet-bar input:focus { outline: none; border-color: var(--sky); }
+  .gsheet-input-row input:focus { outline: none; border-color: var(--sky); }
 
   /* DROPZONE */
   .dropzone {
     text-align: center;
     color: var(--white-dim);
-    padding: 45px 20px;
+    padding: 40px 20px;
     background: rgba(255,255,255,0.03);
     border: 2px dashed rgba(255,255,255,0.18);
     border-radius: 18px;
@@ -152,19 +203,19 @@ html_content = '''<!DOCTYPE html>
   }
   .dropzone.dragover { background: rgba(37,99,235,0.12); border-color: var(--sky); }
   .dropzone .icon-box {
-    width: 50px;
-    height: 50px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     background: rgba(37,99,235,0.15);
     color: var(--sky);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 22px;
+    margin-bottom: 8px;
   }
-  .dropzone h2 { color: #fff; margin: 0 0 6px; font-size: 17px; font-weight: 700; }
-  .dropzone p { margin: 0 0 12px; font-size: 12.5px; }
+  .dropzone h2 { color: #fff; margin: 0 0 4px; font-size: 16.5px; font-weight: 700; }
+  .dropzone p { margin: 0 0 10px; font-size: 12px; }
 
   /* HERO */
   .hero { text-align: center; padding: 18px 10px 14px; }
@@ -536,11 +587,22 @@ html_content = '''<!DOCTYPE html>
 
   <div class="wrap">
     
-    <!-- GOOGLE SHEET AUTO-FETCH BAR -->
+    <!-- GOOGLE SHEET MULTI-SYNC BAR -->
     <div class="gsheet-bar">
-      <span style="font-weight:700; color:var(--sky); font-size:13px">⚡ Google Sheet Live Sync:</span>
-      <input type="text" id="sheetUrlInput" value="https://docs.google.com/spreadsheets/d/1ZO0lBb7fhdhUIRJTzTYYn6YrEKtRcSetKQd8WjbrQec/edit?gid=0#gid=0" placeholder="Paste Google Sheet URL">
-      <button class="btn green mini" onclick="fetchFromGoogleSheet()">📥 Auto Fetch (Blank APP ID Only)</button>
+      <div class="gsheet-header">
+        <span style="font-weight:700; color:var(--sky); font-size:13px">⚡ Google Sheet Live Sync Presets:</span>
+        <div class="gsheet-presets">
+          <button class="preset-btn active" id="pBtn1" onclick="selectPreset(1)">📄 Sheet 1 (Main)</button>
+          <button class="preset-btn" id="pBtn2" onclick="selectPreset(2)">📄 Sheet 2</button>
+          <button class="preset-btn" id="pBtn3" onclick="selectPreset(3)">📄 Sheet 3</button>
+          <button class="btn green mini" onclick="fetchFromGoogleSheet()">📥 Auto Fetch Selected</button>
+          <button class="btn mini" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)" onclick="fetchAllGoogleSheets()">⚡ Sync & Combine All 3 Sheets</button>
+        </div>
+      </div>
+      <div class="gsheet-input-row">
+        <span style="font-size:12px; color:var(--white-dim); white-space:nowrap">Active URL:</span>
+        <input type="text" id="sheetUrlInput" value="https://docs.google.com/spreadsheets/d/1ZO0lBb7fhdhUIRJTzTYYn6YrEKtRcSetKQd8WjbrQec/edit?gid=0#gid=0" placeholder="Paste Google Sheet URL">
+      </div>
     </div>
 
     <!-- DROPZONE -->
@@ -758,6 +820,13 @@ let currentPage = 1, pageSize = 50;
 let STATUSES = {};
 let currentPreviewInstitute = null;
 
+// Presets mapping for all 3 Google Sheets
+const SHEET_PRESETS = {
+  1: "https://docs.google.com/spreadsheets/d/1ZO0lBb7fhdhUIRJTzTYYn6YrEKtRcSetKQd8WjbrQec/edit?gid=0#gid=0",
+  2: "https://docs.google.com/spreadsheets/d/1tsJY91qZUAaIUo2Act9J0jGURa5-vcg8mB9r9TbtGZM/edit?gid=0#gid=0",
+  3: "https://docs.google.com/spreadsheets/d/1_S389cIgqZ9-2HDQOz2iC6H4jFCZ58HtfzRJtA8l7Pg/edit?gid=0#gid=0"
+};
+
 const PALETTE = ['#2563eb', '#3b82f6', '#60a5fa', '#16a34a', '#d97706', '#db2777', '#7c3aed', '#0891b2', '#ea580c', '#8b5cf6', '#94a3b8'];
 
 /* ================= UTILITY & SANITIZATION ================= */
@@ -879,11 +948,21 @@ function normalizeInstituteName(rawName, explicitRemark = '') {
 
   const isInst = instKeywords.some(kw => cleanAlpha.includes(kw));
   if (!isInst) {
-    // Treat individuals, parents, traders, single names as 'PARENT'
     return 'PARENT';
   }
 
   return s;
+}
+
+/* ================= PRESET SELECTION ================= */
+function selectPreset(num) {
+  [1, 2, 3].forEach(n => {
+    const b = document.getElementById('pBtn' + n);
+    if (b) b.classList.toggle('active', n === num);
+  });
+  if (SHEET_PRESETS[num]) {
+    document.getElementById('sheetUrlInput').value = SHEET_PRESETS[num];
+  }
 }
 
 /* ================= TABS & RESET ================= */
@@ -907,7 +986,7 @@ function resetData() {
   showToast('Workspace reset', 'info');
 }
 
-/* ================= GOOGLE SHEET DIRECT FETCH ================= */
+/* ================= GOOGLE SHEET DIRECT FETCH (SINGLE & MULTI) ================= */
 function extractSheetIdAndGid(url) {
   const matchId = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
   const sheetId = matchId ? matchId[1] : null;
@@ -916,35 +995,65 @@ function extractSheetIdAndGid(url) {
   return { sheetId, gid };
 }
 
+async function fetchCsvRows(url) {
+  const { sheetId, gid } = extractSheetIdAndGid(url);
+  if (!sheetId) throw new Error('Invalid URL format');
+  const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+  const res = await fetch(exportUrl);
+  if (!res.ok) throw new Error('Could not fetch CSV');
+  const csvText = await res.text();
+  const wb = XLSX.read(csvText, { type: 'string', cellDates: true });
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+}
+
 async function fetchFromGoogleSheet() {
   const url = document.getElementById('sheetUrlInput').value.trim();
   if (!url) { showToast('Please enter Google Sheet URL', 'warn'); return; }
 
-  const { sheetId, gid } = extractSheetIdAndGid(url);
-  if (!sheetId) { showToast('Invalid Google Sheet URL format', 'warn'); return; }
-
-  showToast('Fetching live data from Google Sheet...', 'info');
-  const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+  showToast('Fetching live data...', 'info');
 
   try {
-    const res = await fetch(exportUrl);
-    if (!res.ok) throw new Error('Network response not ok');
-    const csvText = await res.text();
-    const wb = XLSX.read(csvText, { type: 'string', cellDates: true });
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-    
+    const rows = await fetchCsvRows(url);
     if (!rows || !rows.length) {
       showToast('No data found in Google Sheet.', 'warn');
       return;
     }
 
+    const { gid } = extractSheetIdAndGid(url);
     document.getElementById('fileInfo').textContent = `Google Sheet (gid: ${gid})`;
     parseDataset(rows);
     showToast(`Synced! Loaded ${TX.length} Open Entry rows (Blank APP ID)!`, 'success');
   } catch (err) {
     console.error('Fetch error:', err);
-    showToast('Direct fetch blocked. Make sure "Anyone with the link can view" is set.', 'warn');
+    showToast('Direct fetch blocked. Ensure "Anyone with the link can view" is set.', 'warn');
   }
+}
+
+async function fetchAllGoogleSheets() {
+  showToast('Syncing & combining all 3 Google Sheets...', 'info');
+  let combinedRows = [];
+  let successCount = 0;
+
+  for (const [key, url] of Object.entries(SHEET_PRESETS)) {
+    try {
+      const rows = await fetchCsvRows(url);
+      if (rows && rows.length) {
+        combinedRows = combinedRows.concat(rows);
+        successCount++;
+      }
+    } catch (err) {
+      console.warn(`Could not fetch Preset Sheet ${key}:`, err);
+    }
+  }
+
+  if (!combinedRows.length) {
+    showToast('Failed to fetch sheets. Ensure sharing permissions are active.', 'warn');
+    return;
+  }
+
+  document.getElementById('fileInfo').textContent = `Combined (${successCount}/3 Sheets)`;
+  parseDataset(combinedRows);
+  showToast(`Synced ${successCount} sheets! Total ${TX.length} Open Entry rows loaded!`, 'success');
 }
 
 /* ================= FILE PARSING & DRAG/DROP ================= */
@@ -1014,7 +1123,6 @@ function parseDataset(rows) {
     if (checkAppId) {
       const appId = (findCol(r, ['APPID', 'APPLICATIONID', 'APP_ID']) || '').toString().trim();
       if (appId !== '') {
-        // Skip matched rows that have an APP ID (e.g. 1542690, 1633304)
         continue;
       }
     }
@@ -1813,7 +1921,7 @@ function importEmailCsv(e) {
 </html>
 '''
 
-with open('open_entry_suite_v4_consolidated.html', 'w', encoding='utf-8') as f:
+with open('open_entry_multi_sync_final.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("Generated file: open_entry_suite_v4_consolidated.html")
+print("Generated file: open_entry_multi_sync_final.html")
