@@ -1,9 +1,9 @@
-new_html = '''<!DOCTYPE html>
+compact_html = '''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Open Entry — Settlement Suite Pro</title>
+<title>Open Entry — Settlement Suite Pro (Zero Scroll View)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,7 +23,6 @@ new_html = '''<!DOCTYPE html>
     --green: #16a34a;
     --amber: #d97706;
     --pink: #db2777;
-    --violet: #7c3aed;
     --white: #ffffff;
     --white-dim: #94a3b8;
   }
@@ -34,7 +33,7 @@ new_html = '''<!DOCTYPE html>
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: var(--white);
     line-height: 1.5;
-    font-size: 14px;
+    font-size: 13.5px;
     min-height: 100vh;
     background:
       radial-gradient(1200px 500px at 80% -10%, rgba(37,99,235,0.22), transparent 60%),
@@ -43,47 +42,47 @@ new_html = '''<!DOCTYPE html>
     background-attachment: fixed;
   }
 
-  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 20px 40px; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; }
 
   /* NAVIGATION */
   .nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 24px;
+    padding: 12px 20px;
     max-width: 1320px;
     margin: 0 auto;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 12px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }
   .brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-weight: 800;
-    font-size: 20px;
+    font-size: 19px;
     letter-spacing: -0.4px;
   }
   .logo {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     background: linear-gradient(135deg, var(--blue-light), var(--blue-2));
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 16px rgba(37,99,235,0.45);
+    box-shadow: 0 4px 14px rgba(37,99,235,0.45);
   }
-  .logo svg { width: 18px; height: 18px; }
+  .logo svg { width: 17px; height: 17px; }
   .brand b { color: #fff; }
   .brand span { color: var(--sky); }
 
   .navmid {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     background: rgba(255,255,255,0.06);
-    padding: 4px;
+    padding: 3px;
     border-radius: 999px;
     border: 1px solid rgba(255,255,255,0.1);
   }
@@ -92,8 +91,8 @@ new_html = '''<!DOCTYPE html>
     border: none;
     color: var(--white-dim);
     font-weight: 700;
-    font-size: 13px;
-    padding: 7px 20px;
+    font-size: 12.5px;
+    padding: 6px 18px;
     border-radius: 999px;
     cursor: pointer;
     font-family: inherit;
@@ -102,17 +101,16 @@ new_html = '''<!DOCTYPE html>
   .navmid button.active {
     background: linear-gradient(135deg, var(--blue-light), var(--blue-2));
     color: #fff;
-    box-shadow: 0 6px 16px rgba(37,99,235,0.4);
+    box-shadow: 0 4px 14px rgba(37,99,235,0.4);
   }
-  .navmid button:hover:not(.active) { color: #fff; }
 
-  .nav-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .nav-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .tag {
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.14);
     border-radius: 999px;
-    padding: 5px 14px;
-    font-size: 12px;
+    padding: 4px 12px;
+    font-size: 11.5px;
     color: var(--white-dim);
     font-weight: 600;
   }
@@ -121,107 +119,101 @@ new_html = '''<!DOCTYPE html>
   .dropzone {
     text-align: center;
     color: var(--white-dim);
-    padding: 60px 20px;
+    padding: 50px 20px;
     background: rgba(255,255,255,0.03);
     border: 2px dashed rgba(255,255,255,0.18);
-    border-radius: 20px;
-    margin: 30px 0 20px;
-    transition: all 0.25s ease;
+    border-radius: 18px;
+    margin: 25px 0 15px;
     cursor: pointer;
   }
-  .dropzone.dragover {
-    background: rgba(37,99,235,0.12);
-    border-color: var(--sky);
-    transform: scale(1.01);
-  }
+  .dropzone.dragover { background: rgba(37,99,235,0.12); border-color: var(--sky); }
   .dropzone .icon-box {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
     background: rgba(37,99,235,0.15);
     color: var(--sky);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    margin-bottom: 14px;
+    font-size: 24px;
+    margin-bottom: 12px;
   }
-  .dropzone h2 { color: #fff; margin: 0 0 8px; font-size: 20px; font-weight: 700; }
-  .dropzone p { margin: 0 0 18px; font-size: 13.5px; }
+  .dropzone h2 { color: #fff; margin: 0 0 6px; font-size: 18px; font-weight: 700; }
+  .dropzone p { margin: 0 0 14px; font-size: 13px; }
 
   /* HERO */
-  .hero { text-align: center; padding: 26px 20px 20px; }
+  .hero { text-align: center; padding: 18px 10px 14px; }
   .eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     color: var(--sky);
     font-weight: 700;
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
-  .eyebrow::before, .eyebrow::after { content: ''; width: 28px; height: 1px; background: var(--sky); opacity: 0.6; }
-  .hero h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 800; letter-spacing: -0.8px; margin: 0; }
+  .eyebrow::before, .eyebrow::after { content: ''; width: 24px; height: 1px; background: var(--sky); opacity: 0.6; }
+  .hero h1 { font-size: clamp(20px, 3.5vw, 30px); font-weight: 800; letter-spacing: -0.6px; margin: 0; }
   .hero h1 .accent {
     background: linear-gradient(90deg, var(--sky), var(--blue-light));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
-  .hero p { color: var(--white-dim); font-size: 14.5px; margin-top: 6px; }
+  .hero p { color: var(--white-dim); font-size: 13.5px; margin-top: 4px; }
 
   /* CARDS */
   .card {
     background: var(--panel);
     color: var(--ink);
-    border-radius: 18px;
-    padding: 22px;
-    margin-bottom: 20px;
-    box-shadow: 0 14px 40px rgba(5,15,35,0.35);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px rgba(5,15,35,0.35);
   }
   .card h3 {
-    margin: 0 0 16px;
-    font-size: 15.5px;
+    margin: 0 0 12px;
+    font-size: 14.5px;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     color: var(--ink);
   }
   .card h3::before {
     content: '';
-    width: 4px;
-    height: 16px;
+    width: 3px;
+    height: 14px;
     border-radius: 2px;
     background: linear-gradient(180deg, var(--blue-light), var(--blue-2));
   }
   .step {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     color: var(--blue);
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   /* KPIS */
   .kpis {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin: 0 0 20px;
+    gap: 12px;
+    margin: 0 0 16px;
   }
   @media(max-width: 860px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
-  @media(max-width: 480px) { .kpis { grid-template-columns: 1fr; } }
   
   .kpi {
     background: var(--panel);
     color: var(--ink);
-    border-radius: 16px;
-    padding: 18px 20px;
-    box-shadow: 0 10px 30px rgba(5,15,35,0.3);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 24px rgba(5,15,35,0.3);
     position: relative;
     overflow: hidden;
   }
@@ -229,7 +221,7 @@ new_html = '''<!DOCTYPE html>
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 4px;
+    height: 3px;
     background: linear-gradient(90deg, var(--blue-light), var(--blue-2));
   }
   .kpi.k2::after { background: linear-gradient(90deg, #22c55e, #16a34a); }
@@ -237,54 +229,53 @@ new_html = '''<!DOCTYPE html>
   .kpi.k4::after { background: linear-gradient(90deg, #fbbf24, #d97706); }
   
   .kpi .ico {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 12px;
-    font-size: 18px;
+    margin-bottom: 8px;
+    font-size: 15px;
     background: rgba(37,99,235,0.1);
     color: var(--blue);
   }
   .kpi.k2 .ico { background: rgba(22,163,74,0.1); color: var(--green); }
   .kpi.k3 .ico { background: rgba(219,39,119,0.1); color: var(--pink); }
   .kpi.k4 .ico { background: rgba(217,119,6,0.1); color: var(--amber); }
-  .kpi .lbl { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
-  .kpi .val { font-size: 25px; font-weight: 800; margin-top: 3px; letter-spacing: -0.5px; }
+  .kpi .lbl { font-size: 10.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+  .kpi .val { font-size: 22px; font-weight: 800; margin-top: 2px; letter-spacing: -0.4px; }
 
   /* CHARTS & GRIDS */
-  .grid2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; margin-bottom: 20px; }
+  .grid2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; margin-bottom: 16px; }
   @media(max-width: 920px) { .grid2 { grid-template-columns: 1fr; } }
 
-  .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .bar-name { width: 160px; font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-  .bar-track { flex: 1; height: 20px; background: var(--panel-soft); border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
-  .bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--sky), var(--blue-2)); transition: width .5s ease; }
-  .bar-val { width: 90px; text-align: right; font-size: 12.5px; color: var(--blue); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-name { width: 150px; font-size: 12.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+  .bar-track { flex: 1; height: 18px; background: var(--panel-soft); border-radius: 5px; overflow: hidden; border: 1px solid var(--line); }
+  .bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--sky), var(--blue-2)); }
+  .bar-val { width: 84px; text-align: right; font-size: 12px; color: var(--blue); font-weight: 700; font-variant-numeric: tabular-nums; }
 
-  .donut-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center; }
-  .legend { flex: 1; min-width: 170px; }
-  .share-row { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .donut-wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .legend { flex: 1; min-width: 160px; }
+  .share-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--line); }
   .share-row:last-child { border-bottom: none; }
   .share-row .n { color: var(--ink); font-weight: 600; display: flex; align-items: center; }
   .share-row .p { color: var(--blue); font-weight: 700; font-variant-numeric: tabular-nums; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 8px; flex-shrink: 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
 
   /* FILTERS & INPUTS */
-  .filterbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .filterbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
   input[type=text], input[type=email], input[type=date], input[type=number], select, textarea {
     background: var(--panel-soft);
     border: 1px solid var(--line);
     color: var(--ink);
     border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
+    padding: 7px 10px;
+    font-size: 12.5px;
     font-family: inherit;
-    transition: all 0.2s ease;
   }
-  textarea { width: 100%; min-height: 80px; line-height: 1.45; resize: vertical; }
+  textarea { width: 100%; min-height: 70px; line-height: 1.4; resize: vertical; }
   input[type=email] { width: 100%; }
   input:focus, select:focus, textarea:focus {
     outline: none;
@@ -292,12 +283,12 @@ new_html = '''<!DOCTYPE html>
     background: #fff;
     box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
   }
-  input.search { flex: 2; min-width: 200px; }
+  input.search { flex: 2; min-width: 180px; }
   label.lbl {
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--ink-soft);
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     font-weight: 700;
@@ -308,49 +299,45 @@ new_html = '''<!DOCTYPE html>
     font-family: inherit;
     font-weight: 700;
     border: none;
-    border-radius: 9px;
-    padding: 9px 16px;
-    font-size: 13px;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12.5px;
     cursor: pointer;
     color: #fff;
     background: linear-gradient(135deg, var(--blue-light), var(--blue-2));
-    box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: all 0.15s ease;
+    gap: 5px;
   }
-  button.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37,99,235,0.45); }
-  button.btn:active { transform: translateY(0); }
+  button.btn:hover { transform: translateY(-1px); }
   button.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
-  button.ghost:hover { background: var(--panel-soft); border-color: #cbd5e1; }
-  button.green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 14px rgba(22,163,74,0.35); }
-  button.green:hover { box-shadow: 0 6px 18px rgba(22,163,74,0.45); }
-  button.mini { padding: 5px 11px; font-size: 12px; border-radius: 7px; }
-  button.eye { background: #fff; color: var(--blue); border: 1px solid var(--line); box-shadow: none; padding: 5px 10px; font-size: 12px; border-radius: 7px; cursor: pointer; font-weight: 600; }
-  button.eye:hover { background: #eff6ff; border-color: var(--blue-light); }
+  button.ghost:hover { background: var(--panel-soft); }
+  button.green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
+  button.mini { padding: 4px 10px; font-size: 11.5px; border-radius: 6px; }
+  button.eye { background: #fff; color: var(--blue); border: 1px solid var(--line); box-shadow: none; padding: 4px 9px; font-size: 11.5px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  button.eye:hover { background: #eff6ff; }
   
-  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; align-items: center; }
-  .hint { color: var(--ink-soft); font-size: 12.5px; margin-top: 8px; }
-  .hint code { color: var(--blue); background: rgba(37,99,235,0.08); padding: 2px 6px; border-radius: 5px; font-size: 11.5px; font-family: ui-monospace, Consolas, monospace; }
+  .toolbar { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+  .hint { color: var(--ink-soft); font-size: 12px; margin-top: 6px; }
+  .hint code { color: var(--blue); background: rgba(37,99,235,0.08); padding: 1px 5px; border-radius: 4px; font-size: 11px; }
 
   /* TABLES */
-  table { width: 100%; border-collapse: collapse; font-size: 12.5px; color: var(--ink); }
-  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
-  th { color: var(--ink-soft); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; background: var(--panel-soft); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; color: var(--ink); }
+  th, td { text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--line); }
+  th { color: var(--ink-soft); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; background: var(--panel-soft); }
   td.num { text-align: right; font-variant-numeric: tabular-nums; color: var(--green); font-weight: 700; }
   tbody tr:hover td { background: #f8fafc; }
   th.sortable { cursor: pointer; user-select: none; position: sticky; top: 0; background: #f8fafc; z-index: 1; }
-  th.sortable:hover { color: var(--blue); }
-  .tbl-scroll { max-height: 480px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .tbl-scroll { max-height: 440px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
   
   /* STATUS BADGES */
   .badge {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
+    padding: 2px 7px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
     text-transform: uppercase;
     cursor: pointer;
@@ -362,9 +349,9 @@ new_html = '''<!DOCTYPE html>
 
   a.mailbtn {
     text-decoration: none;
-    padding: 5px 10px;
-    border-radius: 7px;
-    font-size: 11.5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: 11px;
     font-weight: 700;
     display: inline-block;
     color: #fff;
@@ -373,41 +360,41 @@ new_html = '''<!DOCTYPE html>
   a.mailbtn.dim { background: #cbd5e1; pointer-events: none; opacity: 0.6; }
 
   /* STATS PILLS */
-  .stats { display: flex; gap: 12px; flex-wrap: wrap; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
   .pill {
     flex: 1;
-    min-width: 130px;
+    min-width: 120px;
     background: var(--panel-soft);
-    padding: 12px 14px;
-    border-radius: 12px;
-    font-size: 11px;
-    letter-spacing: 0.8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
     color: var(--ink-soft);
     font-weight: 700;
     border: 1px solid var(--line);
   }
-  .pill b { display: block; font-size: 20px; margin-top: 3px; color: var(--ink); letter-spacing: -0.4px; }
+  .pill b { display: block; font-size: 18px; margin-top: 2px; color: var(--ink); letter-spacing: -0.3px; }
 
   /* PAGINATION */
   .pagination {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 12px;
+    margin-top: 10px;
     flex-wrap: wrap;
-    gap: 10px;
-    font-size: 12.5px;
+    gap: 8px;
+    font-size: 12px;
     color: var(--ink-soft);
   }
-  .page-controls { display: flex; gap: 5px; align-items: center; }
+  .page-controls { display: flex; gap: 4px; align-items: center; }
   .page-btn {
     background: #fff;
     border: 1px solid var(--line);
     color: var(--ink);
-    padding: 5px 10px;
-    border-radius: 7px;
-    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
     font-weight: 600;
     cursor: pointer;
   }
@@ -423,34 +410,34 @@ new_html = '''<!DOCTYPE html>
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 14px;
     z-index: 999;
   }
   .modal .box {
     background: #fff;
     color: var(--ink);
-    border-radius: 18px;
-    max-width: 860px;
+    border-radius: 16px;
+    max-width: 840px;
     width: 100%;
-    max-height: 88vh;
+    max-height: 86vh;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    padding: 18px;
+    box-shadow: 0 16px 50px rgba(0,0,0,0.5);
   }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .modal-body { overflow-y: auto; flex: 1; }
-  .toggle-wrap { display: flex; gap: 3px; background: var(--panel-soft); padding: 3px; border-radius: 7px; border: 1px solid var(--line); }
-  .toggle-btn { border: none; background: transparent; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 5px; cursor: pointer; color: var(--ink-soft); }
-  .toggle-btn.active { background: #fff; color: var(--blue); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .toggle-wrap { display: flex; gap: 3px; background: var(--panel-soft); padding: 2px; border-radius: 6px; border: 1px solid var(--line); }
+  .toggle-btn { border: none; background: transparent; padding: 3px 8px; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; color: var(--ink-soft); }
+  .toggle-btn.active { background: #fff; color: var(--blue); }
 
   pre {
     background: var(--panel-soft);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 14px;
+    border-radius: 8px;
+    padding: 12px;
     overflow: auto;
-    font-size: 12px;
+    font-size: 11.5px;
     white-space: pre-wrap;
     word-break: break-word;
     color: var(--ink);
@@ -460,49 +447,40 @@ new_html = '''<!DOCTYPE html>
   .rich-preview-box {
     background: #ffffff;
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 16px;
+    border-radius: 8px;
+    padding: 14px;
     overflow: auto;
-    font-size: 13px;
+    font-size: 12.5px;
   }
 
   /* TOAST NOTIFICATION */
   .toast-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 16px;
+    right: 16px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     z-index: 10000;
   }
   .toast {
     background: #0f172a;
     color: #fff;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
     font-weight: 600;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     border: 1px solid rgba(255,255,255,0.12);
   }
-  .toast.success { border-left: 4px solid #22c55e; }
-  .toast.warn { border-left: 4px solid #f59e0b; }
+  .toast.success { border-left: 3px solid #22c55e; }
+  .toast.warn { border-left: 3px solid #f59e0b; }
 
-  footer { text-align: center; color: var(--white-dim); font-size: 12px; padding: 24px 0 12px; }
+  footer { text-align: center; color: var(--white-dim); font-size: 11.5px; padding: 20px 0 10px; }
   .hidden { display: none !important; }
-
-  @media print {
-    body { background: #fff !important; color: #000 !important; }
-    .nav, .hero, .filterbar, .toolbar, .pagination, .page-controls, button, #viewMail, .dropzone { display: none !important; }
-    .card, .kpi { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
-    .tbl-scroll { max-height: none !important; overflow: visible !important; border: none !important; }
-    th { background: #f0f0f0 !important; color: #000 !important; }
-    #viewDash { display: block !important; }
-  }
 </style>
 </head>
 <body>
@@ -546,11 +524,11 @@ new_html = '''<!DOCTYPE html>
       <div class="hero">
         <div class="eyebrow">Settlement Analytics</div>
         <h1>Open Entry <span class="accent">Intelligence Hub</span></h1>
-        <p>Live reconciliation, top 10 institutes breakdown, and executive summary export.</p>
+        <p>Live reconciliation & executive summary export.</p>
       </div>
 
-      <div style="text-align:center; margin-bottom:20px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
-        <button class="btn green" onclick="copyForEmail()">📋 Copy Summary for Email</button>
+      <div style="text-align:center; margin-bottom:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
+        <button class="btn green" onclick="copyForEmail()">📋 Copy Summary for Email (Wide & Zero Scroll)</button>
         <button class="btn" onclick="exportExec()">📤 Download Summary HTML</button>
         <button class="btn ghost" onclick="window.print()">🖨️ Print / PDF</button>
       </div>
@@ -572,7 +550,7 @@ new_html = '''<!DOCTYPE html>
         <div class="card">
           <h3>Settlement Share Distribution</h3>
           <div class="donut-wrap">
-            <svg id="donut" width="160" height="160" viewBox="0 0 42 42"></svg>
+            <svg id="donut" width="150" height="150" viewBox="0 0 42 42"></svg>
             <div class="legend" id="share"></div>
           </div>
         </div>
@@ -584,8 +562,8 @@ new_html = '''<!DOCTYPE html>
         <div class="filterbar">
           <input type="text" class="search" id="search" placeholder="🔍 Search PAY ID, UTR, A/C, IFSC, remark…" oninput="applyFilters()">
           <select id="fRemark" onchange="applyFilters()"><option value="">All institutes</option></select>
-          <input type="number" id="minAmt" placeholder="Min ₹" style="width:100px" oninput="applyFilters()">
-          <input type="number" id="maxAmt" placeholder="Max ₹" style="width:100px" oninput="applyFilters()">
+          <input type="number" id="minAmt" placeholder="Min ₹" style="width:90px" oninput="applyFilters()">
+          <input type="number" id="maxAmt" placeholder="Max ₹" style="width:90px" oninput="applyFilters()">
           <input type="date" id="dateFrom" title="From Date" onchange="applyFilters()">
           <input type="date" id="dateTo" title="To Date" onchange="applyFilters()">
           <button class="btn ghost mini" onclick="clearFilters()">Reset</button>
@@ -612,10 +590,10 @@ new_html = '''<!DOCTYPE html>
         <!-- PAGINATION BAR -->
         <div class="pagination">
           <div id="countNote">Showing 0 of 0 transactions</div>
-          <div style="display:flex; align-items:center; gap:10px">
+          <div style="display:flex; align-items:center; gap:8px">
             <div>
               Rows:
-              <select id="pageSize" onchange="changePageSize(this.value)" style="padding:3px 6px; font-size:12px">
+              <select id="pageSize" onchange="changePageSize(this.value)" style="padding:2px 5px; font-size:11.5px">
                 <option value="25">25</option>
                 <option value="50" selected>50</option>
                 <option value="100">100</option>
@@ -633,7 +611,7 @@ new_html = '''<!DOCTYPE html>
       <div class="hero">
         <div class="eyebrow">Settlement Mailer</div>
         <h1>Institute <span class="accent">Confirmation Dispatch</span></h1>
-        <p>Preview individualized transaction schedules and dispatch confirmation drafts.</p>
+        <p>Preview individualized transaction schedules and dispatch drafts.</p>
       </div>
 
       <div class="card">
@@ -648,12 +626,12 @@ new_html = '''<!DOCTYPE html>
 
       <div class="card">
         <div class="step">Message Template Configuration</div>
-        <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:12px">
-          <div style="flex:2; min-width:240px">
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px">
+          <div style="flex:2; min-width:220px">
             <label class="lbl">Email Subject</label>
             <input type="text" id="subject" value="Settlement Confirmation - {name} [{date}]" style="width:100%">
           </div>
-          <div style="flex:1; min-width:180px">
+          <div style="flex:1; min-width:160px">
             <label class="lbl">Sign-off / Sender Name</label>
             <input type="text" id="sender" value="Settlement Operations Team" style="width:100%">
           </div>
@@ -675,14 +653,14 @@ Please find the transaction breakdown below for your records:</textarea>
           <button class="btn ghost mini" onclick="resetStatuses()" style="margin-left:auto">🔄 Reset Statuses</button>
         </div>
 
-        <div class="tbl-scroll" style="max-height:450px">
+        <div class="tbl-scroll" style="max-height:420px">
           <table>
             <thead>
               <tr>
                 <th>Institute / Partner</th>
                 <th class="num">Amount</th>
                 <th class="num" style="text-align:center">Txns</th>
-                <th style="min-width:220px">Recipient Email</th>
+                <th style="min-width:200px">Recipient Email</th>
                 <th style="text-align:center">Status</th>
                 <th style="text-align:right">Action</th>
               </tr>
@@ -710,10 +688,10 @@ Please find the transaction breakdown below for your records:</textarea>
     <div class="box">
       <div class="modal-header">
         <div>
-          <b id="mTitle" style="color:var(--blue); font-size:15px">Preview</b>
-          <div id="mSub" style="font-size:12px; color:var(--ink-soft); margin-top:2px"></div>
+          <b id="mTitle" style="color:var(--blue); font-size:14.5px">Preview</b>
+          <div id="mSub" style="font-size:11.5px; color:var(--ink-soft); margin-top:1px"></div>
         </div>
-        <div style="display:flex; align-items:center; gap:8px">
+        <div style="display:flex; align-items:center; gap:6px">
           <div class="toggle-wrap">
             <button class="toggle-btn active" id="btnTogHtml" onclick="togglePreviewMode('html')">Rich HTML</button>
             <button class="toggle-btn" id="btnTogText" onclick="togglePreviewMode('text')">Plain Text</button>
@@ -727,7 +705,7 @@ Please find the transaction breakdown below for your records:</textarea>
         <pre id="mTextContainer" class="hidden"></pre>
       </div>
 
-      <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
+      <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
         <button class="btn green mini" onclick="copyCurrentPreview()">📋 Copy Formatted Body</button>
         <div style="display:flex; gap:6px">
           <button class="btn ghost mini" id="modalMarkBtn" onclick="toggleCurrentSent()">Mark as Sent</button>
@@ -748,7 +726,6 @@ let currentPage = 1, pageSize = 50;
 let STATUSES = {};
 let currentPreviewInstitute = null;
 
-// Clean vibrant palette matching standard design
 const PALETTE = ['#2563eb', '#3b82f6', '#60a5fa', '#16a34a', '#d97706', '#db2777', '#7c3aed', '#0891b2', '#ea580c', '#8b5cf6', '#94a3b8'];
 
 /* ================= UTILITY & SANITIZATION ================= */
@@ -783,7 +760,6 @@ function inrRound(n) {
 }
 function inrShort(n) {
   n = Number(n);
-  if (n >= 1e7) return '₹' + (n / 1e7).toFixed(2) + ' L'; // or Cr format
   if (n >= 1e7) return '₹' + (n / 1e7).toFixed(2) + ' Cr';
   if (n >= 1e5) return '₹' + (n / 1e5).toFixed(2) + ' L';
   if (n >= 1e3) return '₹' + (n / 1e3).toFixed(1) + ' K';
@@ -954,7 +930,6 @@ function buildKpis() {
 }
 
 function buildBars() {
-  // Top 10 Institutes by Volume
   const g = getGroupSums().slice(0, 10);
   const max = g.length ? g[0].amount : 1;
   document.getElementById('bars').innerHTML = g.map(x => `
@@ -1110,7 +1085,7 @@ function downloadBlob(content, name, type) {
   a.click();
 }
 
-/* ================= 100% ZOOM OPTIMIZED EMAIL SUMMARY BUILDER ================= */
+/* ================= ULTRA-COMPACT "ZERO SCROLL" FULL-WIDTH EMAIL SUMMARY BUILDER ================= */
 function pctTo100(vals) {
   const total = vals.reduce((s, v) => s + v, 0) || 1;
   const raw = vals.map(v => v / total * 1000);
@@ -1127,28 +1102,27 @@ function buildSummaryHtml() {
   const g = getGroupSums();
   const pcts = pctTo100(g.map(x => x.amount));
   
-  // Explicit Top 10 Institutes
+  // Top 10 Institutes by Volume
   const top10 = g.slice(0, 10);
   const rest = g.slice(10);
-  const restTotal = rest.reduce((s, x) => s + x.amount, 0);
   const max = top10.length ? top10[0].amount : 1;
   const dateStr = niceDate();
 
-  // 1. Left Card: Top 10 Volume Rows (with progressive bar)
+  // 1. Left Column: Top 10 Institutes with Ultra-Slim Progress Bars
   const barsHtml = top10.map((x, i) => {
     const widthPct = (x.amount / max * 100).toFixed(1);
     return `<tr>
-      <td style="padding:7px 8px;font-size:12.5px;font-weight:600;color:#0f172a;border-bottom:1px solid #edf2f7;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis">${escapeHtml(x.name)}</td>
-      <td style="padding:7px 8px;border-bottom:1px solid #edf2f7;width:40%">
-        <div style="background:#edf2f7;border-radius:5px;overflow:hidden;height:14px;width:100%">
-          <div style="height:14px;width:${widthPct}%;background:linear-gradient(90deg,#60a5fa,#2563eb);border-radius:4px"></div>
+      <td style="padding:2.5px 6px;font-size:11px;font-weight:700;color:#0f172a;border-bottom:1px solid #f1f5f9;white-space:nowrap;max-width:170px;overflow:hidden;text-overflow:ellipsis">${escapeHtml(x.name)}</td>
+      <td style="padding:2.5px 6px;border-bottom:1px solid #f1f5f9;width:40%">
+        <div style="background:#edf2f7;border-radius:4px;overflow:hidden;height:10px;width:100%">
+          <div style="height:10px;width:${widthPct}%;background:linear-gradient(90deg,#60a5fa,#2563eb);border-radius:3px"></div>
         </div>
       </td>
-      <td style="padding:7px 8px;text-align:right;font-size:12.5px;font-weight:700;color:#1d4ed8;white-space:nowrap;border-bottom:1px solid #edf2f7">${inrShort(x.amount)}</td>
+      <td style="padding:2.5px 6px;text-align:right;font-size:11px;font-weight:700;color:#1d4ed8;white-space:nowrap;border-bottom:1px solid #f1f5f9">${inrShort(x.amount)}</td>
     </tr>`;
   }).join('');
 
-  // 2. Right Card: Share Distribution Rows (Color dot + Name + Share %)
+  // 2. Right Column: Settlement Share Distribution (Exact match with screenshot)
   const shareSegments = top10.slice(0, 7).map((x, i) => ({
     name: x.name,
     amount: x.amount,
@@ -1165,69 +1139,56 @@ function buildSummaryHtml() {
     });
   }
 
-  // Segmented color bar (100% email safe horizontal visual breakdown)
+  // Segmented Color Line
   const colorSegmentsBar = shareSegments.map(s => 
-    `<td style="width:${s.pct}%;background:${s.color};height:12px;" title="${escapeHtml(s.name)}: ${s.pct}%"></td>`
+    `<td style="width:${s.pct}%;background:${s.color};height:8px;" title="${escapeHtml(s.name)}: ${s.pct}%"></td>`
   ).join('');
 
+  // Rows for Right Column (padded to match 10 rows vertically)
   const shareListHtml = shareSegments.map(s => `<tr>
-    <td style="padding:6px 6px;font-size:12.5px;color:#0f172a;border-bottom:1px solid #edf2f7;font-weight:600">
-      <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${s.color};margin-right:7px;vertical-align:middle"></span>
+    <td style="padding:2.5px 6px;font-size:11px;color:#0f172a;border-bottom:1px solid #f1f5f9;font-weight:600;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis">
+      <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${s.color};margin-right:5px;vertical-align:middle"></span>
       ${escapeHtml(s.name)}
     </td>
-    <td style="padding:6px 6px;text-align:right;font-size:12.5px;font-weight:700;color:#2563eb;border-bottom:1px solid #edf2f7">${s.pct}%</td>
+    <td style="padding:2.5px 6px;text-align:right;font-size:11px;font-weight:700;color:#2563eb;border-bottom:1px solid #f1f5f9">${s.pct}%</td>
   </tr>`).join('');
 
-  // 3. Other institutes breakdown panel if > 10 institutes
-  const restPanel = rest.length ? `
-    <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:0 0 16px">
-      <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px">Remaining Institutes (${rest.length})</div>
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <tbody>
-          ${rest.map((x, j) => `<tr>
-            <td style="padding:5px 8px;color:#334155;border-bottom:1px solid #f1f5f9">${escapeHtml(x.name)}</td>
-            <td style="padding:5px 8px;text-align:right;font-weight:600;color:#1d4ed8;border-bottom:1px solid #f1f5f9">${inrRound(x.amount)}</td>
-            <td style="padding:5px 8px;text-align:right;color:#64748b;border-bottom:1px solid #f1f5f9">${pcts[10 + j]}%</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>` : '';
-
-  const kpiBox = (lbl, val, color) => `
-    <td style="padding:4px" width="33.33%">
-      <div style="background:#ffffff;border:1px solid #e2e8f0;border-top:3px solid ${color};border-radius:10px;padding:12px 14px">
-        <div style="font-size:10.5px;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;font-weight:700">${lbl}</div>
-        <div style="font-size:21px;font-weight:800;color:#0f172a;margin-top:2px;letter-spacing:-0.4px">${val}</div>
-      </div>
-    </td>`;
-
-  // Master Email Template (Calibrated for 100% standard zoom DPI)
+  // Single-Screen Viewport Fit Structure (Width 96% / 960px max width so it spans nicely across the whole email body)
   const inner = `
-    <div style="max-width:680px;width:100%;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;line-height:1.45;font-size:13px">
+    <div style="width:100%;max-width:960px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;line-height:1.35;font-size:12px">
       
-      <!-- HEADER BANNER -->
-      <div style="background:#0f1a2e;border-radius:12px;padding:18px 20px;text-align:center;margin-bottom:14px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#60a5fa;margin-bottom:4px">Settlement Summary Report</div>
-        <div style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.4px">Open Entry Settlements — ${dateStr}</div>
-      </div>
-
-      <!-- KPIS -->
-      <table style="width:100%;border-collapse:separate;border-spacing:0;margin-bottom:14px">
+      <!-- 1-LINE COMPACT HEADER + LIVE STATS STRIP -->
+      <table style="width:100%;border-collapse:collapse;background:#0f1a2e;border-radius:8px;margin-bottom:8px;color:#ffffff">
         <tr>
-          ${kpiBox('Total Settled', inrShort(total), '#1d4ed8')}
-          ${kpiBox('Transactions', TX.length.toLocaleString('en-IN'), '#16a34a')}
-          ${kpiBox('Institutes', groups, '#db2777')}
+          <td style="padding:8px 14px;vertical-align:middle">
+            <span style="font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#60a5fa;font-weight:700;display:block">Settlement Summary Report</span>
+            <span style="font-size:16px;font-weight:800;letter-spacing:-0.3px">Open Entry Settlements — ${dateStr}</span>
+          </td>
+          <td style="padding:6px 14px;text-align:right;vertical-align:middle;white-space:nowrap">
+            <span style="display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;margin-left:6px;text-align:left">
+              <span style="color:#94a3b8;font-size:8.5px;text-transform:uppercase;display:block;font-weight:700">Total Settled</span>
+              <b style="color:#60a5fa;font-size:13.5px">${inrShort(total)}</b>
+            </span>
+            <span style="display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;margin-left:6px;text-align:left">
+              <span style="color:#94a3b8;font-size:8.5px;text-transform:uppercase;display:block;font-weight:700">Transactions</span>
+              <b style="color:#4ade80;font-size:13.5px">${TX.length.toLocaleString('en-IN')}</b>
+            </span>
+            <span style="display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;margin-left:6px;text-align:left">
+              <span style="color:#94a3b8;font-size:8.5px;text-transform:uppercase;display:block;font-weight:700">Institutes</span>
+              <b style="color:#f472b6;font-size:13.5px">${groups}</b>
+            </span>
+          </td>
         </tr>
       </table>
 
-      <!-- 2-COLUMN SECTION: TOP 10 VOLUME & SHARE DISTRIBUTION -->
-      <table style="width:100%;border-collapse:separate;border-spacing:0;margin-bottom:14px">
+      <!-- 2-COLUMN BALANCED SECTION (TOP 10 + SHARE DISTRIBUTION) -->
+      <table style="width:100%;border-collapse:separate;border-spacing:0;margin-bottom:6px">
         <tr>
           <!-- TOP 10 INSTITUTES BY VOLUME -->
-          <td style="width:53%;vertical-align:top;padding-right:6px">
-            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;height:100%;box-sizing:border-box">
-              <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-                <span style="width:3px;height:14px;background:#2563eb;display:inline-block;border-radius:2px"></span>
+          <td style="width:52%;vertical-align:top;padding-right:4px">
+            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;box-sizing:border-box">
+              <div style="font-size:11.5px;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;gap:5px">
+                <span style="width:3px;height:12px;background:#2563eb;display:inline-block;border-radius:2px"></span>
                 Top Institutes by Volume (Top 10)
               </div>
               <table style="width:100%;border-collapse:collapse">
@@ -1237,15 +1198,15 @@ function buildSummaryHtml() {
           </td>
 
           <!-- SETTLEMENT SHARE DISTRIBUTION -->
-          <td style="width:47%;vertical-align:top;padding-left:6px">
-            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;height:100%;box-sizing:border-box">
-              <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-                <span style="width:3px;height:14px;background:#16a34a;display:inline-block;border-radius:2px"></span>
+          <td style="width:48%;vertical-align:top;padding-left:4px">
+            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;box-sizing:border-box">
+              <div style="font-size:11.5px;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;gap:5px">
+                <span style="width:3px;height:12px;background:#16a34a;display:inline-block;border-radius:2px"></span>
                 Settlement Share Distribution
               </div>
               
               <!-- Stacked Distribution Bar -->
-              <table style="width:100%;border-collapse:collapse;margin-bottom:10px;border-radius:6px;overflow:hidden">
+              <table style="width:100%;border-collapse:collapse;margin-bottom:6px;border-radius:4px;overflow:hidden">
                 <tr>${colorSegmentsBar}</tr>
               </table>
 
@@ -1257,18 +1218,17 @@ function buildSummaryHtml() {
         </tr>
       </table>
 
-      ${restPanel}
-
-      <!-- GRAND TOTAL CARD -->
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:14px">
-        <div style="font-size:11.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Grand Total Settled</div>
-        <div style="font-size:24px;font-weight:800;color:#1d4ed8;margin-top:2px">${inrRound(total)}</div>
-        <div style="color:#64748b;font-size:12px;margin-top:3px">${TX.length} total transactions processed across ${groups} partner institutes</div>
-      </div>
-
-      <div style="text-align:center;color:#94a3b8;font-size:11px;padding-top:6px">
-        Generated securely via Open Entry Settlement Suite Pro · Confidential
-      </div>
+      <!-- 1-LINE SLIM GRAND TOTAL FOOTER (NO EXTRA SCROLL) -->
+      <table style="width:100%;border-collapse:collapse;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px">
+        <tr>
+          <td style="padding:5px 8px;font-size:11px;color:#64748b;vertical-align:middle">
+            Reconciled <strong>${TX.length}</strong> transactions across <strong>${groups}</strong> institutes · Grand Total: <strong style="color:#1d4ed8;font-size:12px">${inrRound(total)}</strong>
+          </td>
+          <td style="padding:5px 8px;text-align:right;font-size:10px;color:#94a3b8;vertical-align:middle">
+            Confidential · Open Entry Suite Pro
+          </td>
+        </tr>
+      </table>
     </div>`;
 
   return { inner, dateStr };
@@ -1284,7 +1244,7 @@ async function copyForEmail() {
       'text/plain': new Blob([inner.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')], { type: 'text/plain' }) 
     })];
     await navigator.clipboard.write(data);
-    showToast('Copied full summary with charts! Paste into Gmail (Ctrl+V)', 'success');
+    showToast('Copied full-width Zero-Scroll summary! Paste into Gmail (Ctrl+V)', 'success');
   } catch (err) {
     const w = window.open('', '_blank');
     w.document.write('<div style="padding:10px;background:#fffbe6;font-family:sans-serif">Press Ctrl+A then Ctrl+C to copy:</div>' + inner);
@@ -1295,7 +1255,7 @@ async function copyForEmail() {
 function exportExec() {
   if (!TX.length) { showToast('Upload a sheet first.', 'warn'); return; }
   const { inner, dateStr } = buildSummaryHtml();
-  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Settlement Summary ${dateStr}</title></head><body style="margin:0;background:#eef2f7;padding:24px 10px">${inner}</body></html>`;
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Settlement Summary ${dateStr}</title></head><body style="margin:0;background:#eef2f7;padding:16px 8px">${inner}</body></html>`;
   downloadBlob(fullHtml, `Settlement_Summary_${dateStr.replace(/ /g, '_')}.html`, 'text/html');
 }
 
@@ -1367,7 +1327,7 @@ function resetStatuses() {
   showToast('Statuses reset to Pending', 'info');
 }
 
-/* 100% ZOOM CALIBRATED MONOSPACE & RICH TABLES */
+/* TABLE FORMATTERS */
 function buildAsciiTable(g) {
   const heads = ['PAY ID', 'Amount (INR)', 'A/C NO', 'IFSC', 'UTR / REF', 'Date'];
   const data = g.txns.map(t => [t.payid, inrPlain(t.amount), t.acc, t.ifsc, t.utr, t.date]);
@@ -1384,30 +1344,30 @@ function buildAsciiTable(g) {
 
 function buildRichTableHtml(g) {
   return `
-    <table style="width:100%; border-collapse:collapse; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12.5px; margin:14px 0">
+    <table style="width:100%; border-collapse:collapse; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; margin:10px 0">
       <thead>
         <tr style="background:#f1f5f9; color:#334155; text-align:left">
-          <th style="padding:8px 9px; border:1px solid #cbd5e1">PAY ID</th>
-          <th style="padding:8px 9px; border:1px solid #cbd5e1; text-align:right">Amount (₹)</th>
-          <th style="padding:8px 9px; border:1px solid #cbd5e1">A/C No</th>
-          <th style="padding:8px 9px; border:1px solid #cbd5e1">IFSC</th>
-          <th style="padding:8px 9px; border:1px solid #cbd5e1">UTR / Bank Ref</th>
-          <th style="padding:8px 9px; border:1px solid #cbd5e1">Date</th>
+          <th style="padding:6px 8px; border:1px solid #cbd5e1">PAY ID</th>
+          <th style="padding:6px 8px; border:1px solid #cbd5e1; text-align:right">Amount (₹)</th>
+          <th style="padding:6px 8px; border:1px solid #cbd5e1">A/C No</th>
+          <th style="padding:6px 8px; border:1px solid #cbd5e1">IFSC</th>
+          <th style="padding:6px 8px; border:1px solid #cbd5e1">UTR / Bank Ref</th>
+          <th style="padding:6px 8px; border:1px solid #cbd5e1">Date</th>
         </tr>
       </thead>
       <tbody>
         ${g.txns.map(t => `
           <tr>
-            <td style="padding:7px 9px; border:1px solid #e2e8f0; font-family:monospace">${escapeHtml(t.payid)}</td>
-            <td style="padding:7px 9px; border:1px solid #e2e8f0; text-align:right; font-weight:700; color:#15803d">${inrPlain(t.amount)}</td>
-            <td style="padding:7px 9px; border:1px solid #e2e8f0">${escapeHtml(t.acc)}</td>
-            <td style="padding:7px 9px; border:1px solid #e2e8f0">${escapeHtml(t.ifsc)}</td>
-            <td style="padding:7px 9px; border:1px solid #e2e8f0">${escapeHtml(t.utr)}</td>
-            <td style="padding:7px 9px; border:1px solid #e2e8f0">${escapeHtml(t.date)}</td>
+            <td style="padding:5px 8px; border:1px solid #e2e8f0; font-family:monospace">${escapeHtml(t.payid)}</td>
+            <td style="padding:5px 8px; border:1px solid #e2e8f0; text-align:right; font-weight:700; color:#15803d">${inrPlain(t.amount)}</td>
+            <td style="padding:5px 8px; border:1px solid #e2e8f0">${escapeHtml(t.acc)}</td>
+            <td style="padding:5px 8px; border:1px solid #e2e8f0">${escapeHtml(t.ifsc)}</td>
+            <td style="padding:5px 8px; border:1px solid #e2e8f0">${escapeHtml(t.utr)}</td>
+            <td style="padding:5px 8px; border:1px solid #e2e8f0">${escapeHtml(t.date)}</td>
           </tr>`).join('')}
         <tr style="background:#f8fafc; font-weight:700">
-          <td style="padding:8px 9px; border:1px solid #cbd5e1">Total (${g.count} txns)</td>
-          <td style="padding:8px 9px; border:1px solid #cbd5e1; text-align:right; color:#15803d">₹${inrPlain(g.amount)}</td>
+          <td style="padding:6px 8px; border:1px solid #cbd5e1">Total (${g.count} txns)</td>
+          <td style="padding:6px 8px; border:1px solid #cbd5e1; text-align:right; color:#15803d">₹${inrPlain(g.amount)}</td>
           <td colspan="4" style="border:1px solid #cbd5e1"></td>
         </tr>
       </tbody>
@@ -1432,10 +1392,10 @@ function constructInstituteMessage(g) {
 
   const plainBody = `${intro}\n\n${buildAsciiTable(g)}\nRegards,\n${sender}`;
   const htmlBody = `
-    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#0f172a; line-height:1.55; font-size:13.5px">
-      <p style="white-space:pre-line; margin:0 0 12px">${escapeHtml(intro)}</p>
+    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#0f172a; line-height:1.5; font-size:13px">
+      <p style="white-space:pre-line; margin:0 0 10px">${escapeHtml(intro)}</p>
       ${buildRichTableHtml(g)}
-      <p style="margin-top:14px">Regards,<br><strong>${escapeHtml(sender)}</strong></p>
+      <p style="margin-top:12px">Regards,<br><strong>${escapeHtml(sender)}</strong></p>
     </div>`;
 
   return { subject, plainBody, htmlBody };
@@ -1480,7 +1440,7 @@ async function copyCurrentPreview() {
     const blob = new Blob([htmlBody], { type: 'text/html' });
     const data = [new ClipboardItem({ 'text/html': blob, 'text/plain': new Blob([plainBody], { type: 'text/plain' }) })];
     await navigator.clipboard.write(data);
-    showToast('Copied 100% formatted table! Paste into Gmail', 'success');
+    showToast('Copied formatted body! Paste into Gmail', 'success');
   } catch (err) {
     navigator.clipboard.writeText(plainBody).then(() => showToast('Copied plain text body!', 'info'));
   }
@@ -1637,7 +1597,7 @@ function importEmailCsv(e) {
 </html>
 '''
 
-with open('open_entry_settlement_suite_v3.html', 'w', encoding='utf-8') as f:
-    f.write(new_html)
+with open('open_entry_zero_scroll.html', 'w', encoding='utf-8') as f:
+    f.write(compact_html)
 
-print("Saved updated version as open_entry_settlement_suite_v3.html")
+print("Saved ultra compact version: open_entry_zero_scroll.html")
