@@ -1,4 +1,4 @@
-code = '''<!DOCTYPE html>
+html_content = '''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -338,7 +338,6 @@ code = '''<!DOCTYPE html>
   button.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
   button.ghost:hover { background: var(--panel-soft); }
   button.green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
-  button.amber { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 4px 12px rgba(217,119,6,0.3); }
   button.mini { padding: 4px 10px; font-size: 11.5px; border-radius: 6px; }
   button.eye { background: #fff; color: var(--blue); border: 1px solid var(--line); box-shadow: none; padding: 4px 9px; font-size: 11.5px; border-radius: 6px; cursor: pointer; font-weight: 600; }
   button.eye:hover { background: #eff6ff; }
@@ -548,7 +547,7 @@ code = '''<!DOCTYPE html>
     <div id="dropzone" class="dropzone" onclick="document.getElementById('file').click()">
       <div class="icon-box">📥</div>
       <h2>Drag & Drop your Excel / CSV Sheet here or Click Auto Fetch above</h2>
-      <p>System will automatically filter rows where <strong>APP ID</strong> is blank</p>
+      <p>System automatically consolidates institute branches (e.g. Podar, Manipal) &amp; filters blank APP IDs</p>
       <button class="btn" style="pointer-events:none">Browse Local File</button>
     </div>
 
@@ -591,7 +590,7 @@ code = '''<!DOCTYPE html>
 
       <!-- TRANSACTIONS TABLE -->
       <div class="card">
-        <h3>Transaction Records (Filtered: Blank APP ID)</h3>
+        <h3>Transaction Records (Consolidated)</h3>
         <div class="filterbar">
           <input type="text" class="search" id="search" placeholder="🔍 Search PAY ID, UTR, A/C, IFSC, remark…" oninput="applyFilters()">
           <select id="fRemark" onchange="applyFilters()"><option value="">All institutes</option></select>
@@ -828,6 +827,65 @@ function dateToISO(dStr) {
   return '';
 }
 
+/* ================= SMART CONSOLIDATION & PARENT DETECTION ================= */
+function normalizeInstituteName(rawName, explicitRemark = '') {
+  if (explicitRemark && String(explicitRemark).trim() && String(explicitRemark).trim().toUpperCase() !== 'NAN') {
+    return String(explicitRemark).trim();
+  }
+
+  if (!rawName || String(rawName).trim().toUpperCase() in {'':1, 'NAN':1, 'NULL':1, 'UNDEFINED':1}) {
+    return 'PARENT';
+  }
+
+  const s = String(rawName).trim();
+  const cleanAlpha = s.toUpperCase().replace(/[^A-Z0-9\s]/g, ' ');
+
+  // 1. Core Educational Brand Normalization (Merge all branches into parent)
+  if (cleanAlpha.includes('PODAR')) return 'PODAR';
+  if (cleanAlpha.includes('MANIPAL')) return 'MANIPAL';
+  if (cleanAlpha.includes('AAKASH')) return 'AAKASH';
+  if (cleanAlpha.includes('ALLEN')) return 'ALLEN';
+  if (cleanAlpha.includes('DY PATIL') || cleanAlpha.includes('D Y PATIL') || cleanAlpha.includes('PATIL VIDYAPEETH')) return 'D Y PATIL';
+  if (cleanAlpha.replace(/\s+/g, '').includes('DELHIPUBLIC') || cleanAlpha.includes('DELHI PUBLIC')) return 'DELHI PUBLIC SCHOOL';
+  if (cleanAlpha.includes('VIVEKANANDA')) return 'VIVEKANANDA';
+  if (cleanAlpha.includes('RYAN')) return 'RYAN';
+  if (cleanAlpha.includes('VARSITY')) return 'VARSITY';
+  if (cleanAlpha.includes('SIGMA')) return 'SIGMA INSTITUTE';
+  if (cleanAlpha.includes('INWARD RTGS') || cleanAlpha.includes('INWARD NEFT')) return 'INWARD RTGS';
+  if (cleanAlpha.includes('CUTCHHI VISA OSWAL') || cleanAlpha.includes('DERAWASI JAIN')) return 'SHREE CUTCHHI VISA OSWAL';
+  if (cleanAlpha.includes('NARAYANA')) return 'NARAYANA EDUCATIONAL TRUST';
+  if (cleanAlpha.includes('NEXGEN')) return 'NEXGEN EDUCATIONAL TRUST';
+  if (cleanAlpha.includes('PINAKIN')) return 'PINAKIN EDUCATIONAL TRUST';
+  if (cleanAlpha.includes('EDSCIENCE')) return 'EDSCIENCE KNOWLEDGE SOLUTIONS PRIVATE LIMITED';
+  if (cleanAlpha.includes('CHRIST COLLEGE')) return 'CHRIST COLLEGE PUNE';
+  if (cleanAlpha.includes('J N N') || cleanAlpha.includes('JNN')) {
+    return cleanAlpha.includes('VIDYALLAYA') ? 'J N N VIDYALLAYA' : 'J N N INSTITUTE OF ENGINEERING';
+  }
+  if (cleanAlpha.replace(/\s+/g, '').includes('SRMTRUST') || cleanAlpha.includes('SRM TRUST')) return 'srmtrust';
+  if (cleanAlpha.includes('DHONI GLOBAL')) return 'M S DHONI GLOBAL SCHOOL';
+  if (cleanAlpha.includes('JAYSHREE PERIWAL')) return 'JAYSHREE PERIWAL INTERNATIONAL PRE';
+  if (cleanAlpha.includes('SRI SHANMUGHA')) return 'SRI SHANMUGHA EDUCATIONAL CHARITABL';
+  if (cleanAlpha.replace(/\s+/g, '').includes('THECLASSONE')) return 'THECLASSONEINDIA';
+  if (cleanAlpha.includes('INDIAN TECHNICAL AND COMPUTER')) return 'INDIAN TECHNICAL AND COMPUTER INSTITUTE';
+  if (cleanAlpha.includes('INST OF DISTANCE LEARNING')) return 'INST';
+
+  // 2. Identify if it's an institution vs Human / Parent
+  const instKeywords = [
+    'TRUST', 'SCHOOL', 'COLLEGE', 'UNIVERSITY', 'INSTITUTE', 'ACADEMY',
+    'EDUCATION', 'EDUCATIONAL', 'VIDYAPEETH', 'VIDYALAYA', 'FOUNDATION',
+    'INTERNATIONAL', 'CAMPUS', 'SERVICES LIMITED', 'PVT LTD', 'PRIVATE LIMITED',
+    'SOLUTIONS'
+  ];
+
+  const isInst = instKeywords.some(kw => cleanAlpha.includes(kw));
+  if (!isInst) {
+    // Treat individuals, parents, traders, single names as 'PARENT'
+    return 'PARENT';
+  }
+
+  return s;
+}
+
 /* ================= TABS & RESET ================= */
 function showTab(t) {
   document.getElementById('tabDash').classList.toggle('active', t === 'dash');
@@ -885,8 +943,7 @@ async function fetchFromGoogleSheet() {
     showToast(`Synced! Loaded ${TX.length} Open Entry rows (Blank APP ID)!`, 'success');
   } catch (err) {
     console.error('Fetch error:', err);
-    // If CORS fails on direct fetch, fallback via gviz jsonp or prompt instructions
-    showToast('Direct fetch blocked or sheet private. Ensure "Anyone with the link can view".', 'warn');
+    showToast('Direct fetch blocked. Make sure "Anyone with the link can view" is set.', 'warn');
   }
 }
 
@@ -953,18 +1010,20 @@ function parseDataset(rows) {
   const checkAppId = rows.length > 0 && hasAppIdColumn(rows[0]);
 
   for (const r of rows) {
-    // FILTER CONDITION: If sheet has APP ID column, take ONLY rows where APP ID is BLANK
+    // 1. FILTER CONDITION: If sheet has APP ID column, take ONLY rows where APP ID is BLANK
     if (checkAppId) {
       const appId = (findCol(r, ['APPID', 'APPLICATIONID', 'APP_ID']) || '').toString().trim();
       if (appId !== '') {
-        // Skip matched rows that have an APP ID
+        // Skip matched rows that have an APP ID (e.g. 1542690, 1633304)
         continue;
       }
     }
 
-    let name = (findCol(r, ['BANKTRANSFERSPAYERNAME', 'PAYERNAME', 'PAYER_NAME', 'REMARK', 'INSTITUTE', 'COLLEGE', 'SCHOOL']) || '').toString().trim();
-    if (!name) name = (findCol(r, ['PAYER', 'STUDENT']) || '').toString().trim();
-    if (!name) name = 'Unassigned';
+    const rawPayer = (findCol(r, ['BANKTRANSFERSPAYERNAME', 'PAYERNAME', 'PAYER_NAME', 'PAYER', 'STUDENT']) || '').toString().trim();
+    const explicitRemark = (findCol(r, ['REMARK', 'REMARK1', 'R1', 'INSTITUTE', 'COLLEGE', 'SCHOOL']) || '').toString().trim();
+
+    // 2. CONSOLIDATION LOGIC: Group branches (PODAR, MANIPAL) & Humans (PARENT)
+    const name = normalizeInstituteName(rawPayer, explicitRemark);
 
     const rawAmt = findCol(r, ['AMOUNT', 'NETAMOUNT', 'TXNAMOUNT']) + '';
     const amt = parseFloat(rawAmt.replace(/[^0-9.\-]/g, '')) || 0;
@@ -979,7 +1038,6 @@ function parseDataset(rows) {
       remark: name
     };
 
-    // Ignore empty lines
     if (!t.payid && !t.amount && !t.utr) continue;
 
     TX.push(t);
@@ -1593,7 +1651,10 @@ async function copyCurrentPreview() {
 
   try {
     const blob = new Blob([htmlBody], { type: 'text/html' });
-    const data = [new ClipboardItem({ 'text/html': blob, 'text/plain': new Blob([plainBody], { type: 'text/plain' }) })];
+    const data = [new ClipboardItem({ 
+      'text/html': blob, 
+      'text/plain': new Blob([plainBody], { type: 'text/plain' }) 
+    })];
     await navigator.clipboard.write(data);
     showToast('Copied formatted body! Paste into Gmail', 'success');
   } catch (err) {
@@ -1752,7 +1813,7 @@ function importEmailCsv(e) {
 </html>
 '''
 
-with open('open_entry_auto_sync_final.html', 'w', encoding='utf-8') as f:
-    f.write(code)
+with open('open_entry_suite_v4_consolidated.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
 
-print("Saved: open_entry_auto_sync_final.html")
+print("Generated file: open_entry_suite_v4_consolidated.html")
