@@ -115,21 +115,45 @@ code = '''<!DOCTYPE html>
     font-weight: 600;
   }
 
+  /* G-SHEET DIRECT BAR */
+  .gsheet-bar {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .gsheet-bar input {
+    flex: 1;
+    min-width: 260px;
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12.5px;
+  }
+  .gsheet-bar input:focus { outline: none; border-color: var(--sky); }
+
   /* DROPZONE */
   .dropzone {
     text-align: center;
     color: var(--white-dim);
-    padding: 50px 20px;
+    padding: 45px 20px;
     background: rgba(255,255,255,0.03);
     border: 2px dashed rgba(255,255,255,0.18);
     border-radius: 18px;
-    margin: 25px 0 15px;
+    margin: 15px 0;
     cursor: pointer;
   }
   .dropzone.dragover { background: rgba(37,99,235,0.12); border-color: var(--sky); }
   .dropzone .icon-box {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     border-radius: 14px;
     background: rgba(37,99,235,0.15);
     color: var(--sky);
@@ -137,10 +161,10 @@ code = '''<!DOCTYPE html>
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
-  .dropzone h2 { color: #fff; margin: 0 0 6px; font-size: 18px; font-weight: 700; }
-  .dropzone p { margin: 0 0 14px; font-size: 13px; }
+  .dropzone h2 { color: #fff; margin: 0 0 6px; font-size: 17px; font-weight: 700; }
+  .dropzone p { margin: 0 0 12px; font-size: 12.5px; }
 
   /* HERO */
   .hero { text-align: center; padding: 18px 10px 14px; }
@@ -314,6 +338,7 @@ code = '''<!DOCTYPE html>
   button.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
   button.ghost:hover { background: var(--panel-soft); }
   button.green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
+  button.amber { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 4px 12px rgba(217,119,6,0.3); }
   button.mini { padding: 4px 10px; font-size: 11.5px; border-radius: 6px; }
   button.eye { background: #fff; color: var(--blue); border: 1px solid var(--line); box-shadow: none; padding: 4px 9px; font-size: 11.5px; border-radius: 6px; cursor: pointer; font-weight: 600; }
   button.eye:hover { background: #eff6ff; }
@@ -511,12 +536,20 @@ code = '''<!DOCTYPE html>
   </div>
 
   <div class="wrap">
+    
+    <!-- GOOGLE SHEET AUTO-FETCH BAR -->
+    <div class="gsheet-bar">
+      <span style="font-weight:700; color:var(--sky); font-size:13px">⚡ Google Sheet Live Sync:</span>
+      <input type="text" id="sheetUrlInput" value="https://docs.google.com/spreadsheets/d/1ZO0lBb7fhdhUIRJTzTYYn6YrEKtRcSetKQd8WjbrQec/edit?gid=0#gid=0" placeholder="Paste Google Sheet URL">
+      <button class="btn green mini" onclick="fetchFromGoogleSheet()">📥 Auto Fetch (Blank APP ID Only)</button>
+    </div>
+
     <!-- DROPZONE -->
     <div id="dropzone" class="dropzone" onclick="document.getElementById('file').click()">
       <div class="icon-box">📥</div>
-      <h2>Drag & Drop your Open Entry Sheet here</h2>
-      <p>Supports .xlsx, .xls, or .csv exports (Bank / Open Entry reports)</p>
-      <button class="btn" style="pointer-events:none">Browse File from Computer</button>
+      <h2>Drag & Drop your Excel / CSV Sheet here or Click Auto Fetch above</h2>
+      <p>System will automatically filter rows where <strong>APP ID</strong> is blank</p>
+      <button class="btn" style="pointer-events:none">Browse Local File</button>
     </div>
 
     <!-- ========== DASHBOARD ========== -->
@@ -548,7 +581,7 @@ code = '''<!DOCTYPE html>
           <div id="bars"></div>
         </div>
         <div class="card">
-          <h3>Share Distribution</h3>
+          <h3>Volume Breakdown</h3>
           <div class="donut-wrap">
             <svg id="donut" width="150" height="150" viewBox="0 0 42 42"></svg>
             <div class="legend" id="share"></div>
@@ -558,7 +591,7 @@ code = '''<!DOCTYPE html>
 
       <!-- TRANSACTIONS TABLE -->
       <div class="card">
-        <h3>Transaction Records</h3>
+        <h3>Transaction Records (Filtered: Blank APP ID)</h3>
         <div class="filterbar">
           <input type="text" class="search" id="search" placeholder="🔍 Search PAY ID, UTR, A/C, IFSC, remark…" oninput="applyFilters()">
           <select id="fRemark" onchange="applyFilters()"><option value="">All institutes</option></select>
@@ -804,7 +837,7 @@ function showTab(t) {
 }
 
 function resetData() {
-  if (!confirm('Upload another sheet? Current view will be reset.')) return;
+  if (!confirm('Clear workspace and reload?')) return;
   TX = []; FILTERED = []; GROUPS = {}; ORDER = [];
   document.getElementById('dropzone').classList.remove('hidden');
   document.getElementById('viewDash').classList.add('hidden');
@@ -814,6 +847,47 @@ function resetData() {
   document.getElementById('fileInfo').textContent = 'No file loaded';
   document.getElementById('file').value = '';
   showToast('Workspace reset', 'info');
+}
+
+/* ================= GOOGLE SHEET DIRECT FETCH ================= */
+function extractSheetIdAndGid(url) {
+  const matchId = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  const sheetId = matchId ? matchId[1] : null;
+  const matchGid = url.match(/[#&?]gid=([0-9]+)/);
+  const gid = matchGid ? matchGid[1] : '0';
+  return { sheetId, gid };
+}
+
+async function fetchFromGoogleSheet() {
+  const url = document.getElementById('sheetUrlInput').value.trim();
+  if (!url) { showToast('Please enter Google Sheet URL', 'warn'); return; }
+
+  const { sheetId, gid } = extractSheetIdAndGid(url);
+  if (!sheetId) { showToast('Invalid Google Sheet URL format', 'warn'); return; }
+
+  showToast('Fetching live data from Google Sheet...', 'info');
+  const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+
+  try {
+    const res = await fetch(exportUrl);
+    if (!res.ok) throw new Error('Network response not ok');
+    const csvText = await res.text();
+    const wb = XLSX.read(csvText, { type: 'string', cellDates: true });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+    
+    if (!rows || !rows.length) {
+      showToast('No data found in Google Sheet.', 'warn');
+      return;
+    }
+
+    document.getElementById('fileInfo').textContent = `Google Sheet (gid: ${gid})`;
+    parseDataset(rows);
+    showToast(`Synced! Loaded ${TX.length} Open Entry rows (Blank APP ID)!`, 'success');
+  } catch (err) {
+    console.error('Fetch error:', err);
+    // If CORS fails on direct fetch, fallback via gviz jsonp or prompt instructions
+    showToast('Direct fetch blocked or sheet private. Ensure "Anyone with the link can view".', 'warn');
+  }
 }
 
 /* ================= FILE PARSING & DRAG/DROP ================= */
@@ -846,7 +920,7 @@ function handleUploadedFile(f) {
         return;
       }
       parseDataset(rows);
-      showToast(`Loaded ${TX.length} transaction records!`, 'success');
+      showToast(`Loaded ${TX.length} Open Entry records (Blank APP ID)!`, 'success');
     } catch (err) {
       console.error(err);
       showToast('Error reading file. Check structure.', 'warn');
@@ -859,17 +933,37 @@ function findCol(row, keys) {
   for (const k of Object.keys(row)) {
     const kn = k.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
     for (const w of keys) {
-      if (kn.includes(w)) return row[k];
+      if (kn === w || kn.includes(w)) return row[k];
     }
   }
   return '';
 }
 
+function hasAppIdColumn(firstRow) {
+  if (!firstRow) return false;
+  for (const k of Object.keys(firstRow)) {
+    const kn = k.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (kn === 'APPID' || kn.includes('APPID') || kn.includes('APPLICATIONID')) return true;
+  }
+  return false;
+}
+
 function parseDataset(rows) {
   TX = []; GROUPS = {}; ORDER = [];
+  const checkAppId = rows.length > 0 && hasAppIdColumn(rows[0]);
+
   for (const r of rows) {
-    let name = (findCol(r, ['REMARK', 'INSTITUTE', 'COLLEGE', 'SCHOOL']) || '').toString().trim();
-    if (!name) name = (findCol(r, ['PAYERNAME', 'PAYER', 'STUDENT']) || '').toString().trim();
+    // FILTER CONDITION: If sheet has APP ID column, take ONLY rows where APP ID is BLANK
+    if (checkAppId) {
+      const appId = (findCol(r, ['APPID', 'APPLICATIONID', 'APP_ID']) || '').toString().trim();
+      if (appId !== '') {
+        // Skip matched rows that have an APP ID
+        continue;
+      }
+    }
+
+    let name = (findCol(r, ['BANKTRANSFERSPAYERNAME', 'PAYERNAME', 'PAYER_NAME', 'REMARK', 'INSTITUTE', 'COLLEGE', 'SCHOOL']) || '').toString().trim();
+    if (!name) name = (findCol(r, ['PAYER', 'STUDENT']) || '').toString().trim();
     if (!name) name = 'Unassigned';
 
     const rawAmt = findCol(r, ['AMOUNT', 'NETAMOUNT', 'TXNAMOUNT']) + '';
@@ -879,11 +973,15 @@ function parseDataset(rows) {
       payid: (findCol(r, ['PAYID', 'PAYMENTID', 'TXNID', 'ORDERID']) || '').toString().trim(),
       amount: amt,
       acc: (findCol(r, ['ACNO', 'ACCOUNT', 'ACCNO']) || '').toString().trim(),
-      ifsc: (findCol(r, ['IFSC', 'IFSCCODE']) || '').toString().trim(),
-      utr: (findCol(r, ['UTR', 'BANKREF', 'RRN', 'REFNO']) || '').toString().trim(),
-      date: parseRawDate(findCol(r, ['DATE', 'TXNDATE', 'ENTRYDATE'])),
+      ifsc: (findCol(r, ['IFSCCODE', 'IFSC']) || '').toString().trim(),
+      utr: (findCol(r, ['UTRBANKREFNO', 'UTR', 'BANKREF', 'RRN', 'REFNO']) || '').toString().trim(),
+      date: parseRawDate(findCol(r, ['DATEDMYYYY', 'DATEMDYYYY', 'DATE', 'TXNDATE', 'ENTRYDATE'])),
       remark: name
     };
+
+    // Ignore empty lines
+    if (!t.payid && !t.amount && !t.utr) continue;
+
     TX.push(t);
 
     if (!GROUPS[name]) {
@@ -1191,12 +1289,12 @@ function buildSummaryHtml() {
             </div>
           </td>
 
-          <!-- SHARE DISTRIBUTION -->
+          <!-- VOLUME BREAKDOWN -->
           <td style="width:48%;vertical-align:top;padding-left:4px">
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;box-sizing:border-box">
               <div style="font-size:11.5px;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;gap:5px">
                 <span style="width:3px;height:12px;background:#16a34a;display:inline-block;border-radius:2px"></span>
-                Share Distribution
+                Volume Breakdown
               </div>
               
               <table style="width:100%;border-collapse:collapse;margin-bottom:6px;border-radius:4px;overflow:hidden">
@@ -1232,7 +1330,6 @@ function generateAndDownloadExcel(dateStr) {
   if (!TX.length) return;
   const wb = XLSX.utils.book_new();
 
-  // Sheet 1: Institute Summary
   const g = getGroupSums();
   const totalAmt = TX.reduce((s, t) => s + t.amount, 0);
   const pcts = pctTo100(g.map(x => x.amount));
@@ -1263,7 +1360,7 @@ function generateAndDownloadExcel(dateStr) {
   const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
   XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
 
-  // Sheet 2: All Detailed Transactions
+  // Sheet 2: All Filtered Transactions (Blank APP ID)
   const txHeads = ["Sr No", "PAY ID", "Amount (INR)", "A/C NO", "IFSC", "UTR / Bank Ref", "Date", "Remark / Institute"];
   const txData = [txHeads];
   TX.forEach((t, i) => {
@@ -1288,10 +1385,9 @@ function generateAndDownloadExcel(dateStr) {
 
 /* ================= COPY SUMMARY & SIMULTANEOUS EXCEL DOWNLOAD ================= */
 async function copyForEmail() {
-  if (!TX.length) { showToast('Upload a sheet first.', 'warn'); return; }
+  if (!TX.length) { showToast('Load or Auto-Fetch a sheet first.', 'warn'); return; }
   const { inner, dateStr } = buildSummaryHtml();
   
-  // 1. Copy formatted HTML to Clipboard
   try {
     const blob = new Blob([inner], { type: 'text/html' });
     const data = [new ClipboardItem({ 
@@ -1305,14 +1401,14 @@ async function copyForEmail() {
     w.document.close();
   }
 
-  // 2. Trigger Excel (.xlsx) Report Download for attachment
+  // Trigger Excel (.xlsx) Report Download
   generateAndDownloadExcel(dateStr);
 
   showToast('Copied Summary & Downloaded Excel Attachment!', 'success');
 }
 
 function exportExec() {
-  if (!TX.length) { showToast('Upload a sheet first.', 'warn'); return; }
+  if (!TX.length) { showToast('Load a sheet first.', 'warn'); return; }
   const { inner, dateStr } = buildSummaryHtml();
   const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Summary ${dateStr}</title></head><body style="margin:0;background:#eef2f7;padding:16px 8px">${inner}</body></html>`;
   downloadBlob(fullHtml, `Open_Entry_Summary_${dateStr.replace(/ /g, '_')}.html`, 'text/html');
@@ -1656,7 +1752,7 @@ function importEmailCsv(e) {
 </html>
 '''
 
-with open('open_entry_suite_final.html', 'w', encoding='utf-8') as f:
+with open('open_entry_auto_sync_final.html', 'w', encoding='utf-8') as f:
     f.write(code)
 
-print("Saved final file: open_entry_suite_final.html")
+print("Saved: open_entry_auto_sync_final.html")
