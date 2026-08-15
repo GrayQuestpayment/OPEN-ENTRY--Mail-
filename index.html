@@ -1,116 +1,4 @@
-import pandas as pd
-import glob
-import os
-
-files = glob.glob("*.xlsx") + glob.glob("*.xls")
-print("Files found:", files)
-
-for f in files:
-    try:
-        xls = pd.ExcelFile(f)
-        print(f"\nFile: {f}, Sheets: {xls.sheet_names}")
-        df = pd.read_excel(f, sheet_name=xls.sheet_names[0])
-        print("Columns:", df.columns.tolist())
-        print("Head:")
-        print(df.head(10))
-    except Exception as e:
-        print(f"Error reading {f}: {e}")
-        df = pd.read_excel('Open_Entry_13th_Aug-26.xlsx', sheet_name='DATA')
-mapping = df[['BANK_TRANSFERS.PAYER_NAME', 'REMARK']].drop_duplicates()
-print(f"Total rows: {len(df)}")
-print(f"Unique payer names -> remarks mapping ({len(mapping)} mappings):")
-for idx, r in mapping.iterrows():
-    print(f"'{r['BANK_TRANSFERS.PAYER_NAME']}'  ==>  '{r['REMARK']}'")
-    def normalize_institute_name(raw_name, explicit_remark=""):
-    # If explicit remark is given and not empty, check if it's already a clean remark
-    if explicit_remark and str(explicit_remark).strip() and str(explicit_remark).strip().upper() != 'NAN':
-        return str(explicit_remark).strip()
-    
-    if not raw_name or str(raw_name).strip().upper() in ('', 'NAN', 'NULL', 'UNDEFINED'):
-        return 'PARENT'
-    
-    s = str(raw_name).strip()
-    u = s.upper().replace('.', ' ').replace('_', ' ')
-    clean_alpha = ''.join(c for c in u if c.isalnum() or c.isspace())
-    
-    # 1. Known Institute Brand Consolidations
-    if 'PODAR' in clean_alpha:
-        return 'PODAR'
-    if 'MANIPAL' in clean_alpha:
-        return 'MANIPAL'
-    if 'AAKASH' in clean_alpha:
-        return 'AAKASH'
-    if 'ALLEN' in clean_alpha:
-        return 'ALLEN'
-    if 'DY PATIL' in clean_alpha or 'D Y PATIL' in clean_alpha or 'PATIL VIDYAPEETH' in clean_alpha:
-        return 'D Y PATIL'
-    if 'DELHIPUBLIC' in clean_alpha.replace(' ', '') or 'DELHI PUBLIC' in clean_alpha:
-        return 'DELHI PUBLIC SCHOOL'
-    if 'VIVEKANANDA' in clean_alpha:
-        return 'VIVEKANANDA'
-    if 'RYAN' in clean_alpha:
-        return 'RYAN'
-    if 'VARSITY' in clean_alpha:
-        return 'VARSITY'
-    if 'SIGMA INSTITUTE' in clean_alpha or 'SIGMA' in clean_alpha:
-        return 'SIGMA INSTITUTE'
-    if 'INWARD RTGS' in clean_alpha or 'INWARD NEFT' in clean_alpha:
-        return 'INWARD RTGS'
-    if 'CUTCHHI VISA OSWAL' in clean_alpha or 'DERAWASI JAIN' in clean_alpha:
-        return 'SHREE CUTCHHI VISA OSWAL'
-    if 'NARAYANA' in clean_alpha:
-        return 'NARAYANA EDUCATIONAL TRUST'
-    if 'NEXGEN' in clean_alpha:
-        return 'NEXGEN EDUCATIONAL TRUST'
-    if 'PINAKIN' in clean_alpha:
-        return 'PINAKIN EDUCATIONAL TRUST'
-    if 'EDSCIENCE' in clean_alpha:
-        return 'EDSCIENCE KNOWLEDGE SOLUTIONS PRIVATE LIMITED'
-    if 'CHRIST COLLEGE' in clean_alpha:
-        return 'CHRIST COLLEGE PUNE'
-    if 'J N N' in clean_alpha or 'JNN' in clean_alpha:
-        if 'VIDYALLAYA' in clean_alpha:
-            return 'J N N VIDYALLAYA'
-        return 'J N N INSTITUTE OF ENGINEERING'
-    if 'SRMTRUST' in clean_alpha.replace(' ', '') or 'SRM TRUST' in clean_alpha:
-        return 'srmtrust'
-    if 'DHONI GLOBAL' in clean_alpha:
-        return 'M S DHONI GLOBAL SCHOOL'
-    if 'JAYSHREE PERIWAL' in clean_alpha:
-        return 'JAYSHREE PERIWAL INTERNATIONAL PRE'
-    if 'SRI SHANMUGHA' in clean_alpha:
-        return 'SRI SHANMUGHA EDUCATIONAL CHARITABL'
-    if 'THECLASSONE' in clean_alpha.replace(' ', ''):
-        return 'THECLASSONEINDIA'
-    if 'INDIAN TECHNICAL AND COMPUTER' in clean_alpha:
-        return 'INDIAN TECHNICAL AND COMPUTER INSTITUTE'
-    if 'INST OF DISTANCE LEARNING' in clean_alpha:
-        return 'INST'
-
-    # Check institutional keywords
-    inst_keywords = ['TRUST', 'SCHOOL', 'COLLEGE', 'UNIVERSITY', 'INSTITUTE', 'ACADEMY', 'EDUCATION', 'VIDYAPEETH', 'VIDYALAYA', 'FOUNDATION', 'INTERNATIONAL', 'CAMPUS', 'SERVICES LIMITED', 'PVT LTD', 'PRIVATE LIMITED']
-    is_inst = any(kw in clean_alpha for kw in inst_keywords)
-    
-    if not is_inst:
-        # Check parent indicator (Mr, Mrs, Kumar, Singh, individual person names, etc.)
-        return 'PARENT'
-    
-    return s
-
-# Test against the actual Excel sheet
-df = pd.read_excel('Open_Entry_13th_Aug-26.xlsx', sheet_name='DATA')
-correct = 0
-for idx, r in df.iterrows():
-    payer = str(r['BANK_TRANSFERS.PAYER_NAME'])
-    actual_rem = str(r['REMARK'])
-    pred_no_rem = normalize_institute_name(payer, "")
-    if pred_no_rem == actual_rem:
-        correct += 1
-    else:
-        print(f"Mismatch: '{payer}' -> Pred: '{pred_no_rem}' vs Actual: '{actual_rem}'")
-
-print(f"\nAccuracy without REMARK column: {correct}/{len(df)} = {correct/len(df)*100:.1f}%")
-html_content = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -991,7 +879,6 @@ function normalizeInstituteName(rawName, explicitRemark = '') {
 
   const isInst = instKeywords.some(kw => cleanAlpha.includes(kw));
   if (!isInst) {
-    // Treat individuals, parents, traders, single names as 'PARENT'
     return 'PARENT';
   }
 
@@ -1013,7 +900,7 @@ function resetData() {
   document.getElementById('viewDash').classList.add('hidden');
   document.getElementById('viewMail').classList.add('hidden');
   document.getElementById('navTabs').style.display = 'none';
-  document.getElementById('btnReset').classList.add('hidden');
+  document.getElementById('btnReset').classList.remove('hidden');
   document.getElementById('fileInfo').textContent = 'No file loaded';
   document.getElementById('file').value = '';
   showToast('Workspace reset', 'info');
@@ -1122,11 +1009,9 @@ function parseDataset(rows) {
   const checkAppId = rows.length > 0 && hasAppIdColumn(rows[0]);
 
   for (const r of rows) {
-    // 1. FILTER CONDITION: If sheet has APP ID column, take ONLY rows where APP ID is BLANK
     if (checkAppId) {
       const appId = (findCol(r, ['APPID', 'APPLICATIONID', 'APP_ID']) || '').toString().trim();
       if (appId !== '') {
-        // Skip matched rows that have an APP ID (e.g. 1542690, 1633304)
         continue;
       }
     }
@@ -1134,7 +1019,6 @@ function parseDataset(rows) {
     const rawPayer = (findCol(r, ['BANKTRANSFERSPAYERNAME', 'PAYERNAME', 'PAYER_NAME', 'PAYER', 'STUDENT']) || '').toString().trim();
     const explicitRemark = (findCol(r, ['REMARK', 'REMARK1', 'R1', 'INSTITUTE', 'COLLEGE', 'SCHOOL']) || '').toString().trim();
 
-    // 2. CONSOLIDATION LOGIC: Group branches (PODAR, MANIPAL) & Humans (PARENT)
     const name = normalizeInstituteName(rawPayer, explicitRemark);
 
     const rawAmt = findCol(r, ['AMOUNT', 'NETAMOUNT', 'TXNAMOUNT']) + '';
@@ -1371,7 +1255,6 @@ function buildSummaryHtml() {
   const pcts = pctTo100(g.map(x => x.amount));
   
   const top10 = g.slice(0, 10);
-  const rest = g.slice(10);
   const max = top10.length ? top10[0].amount : 1;
   const dateStr = niceDate();
 
@@ -1571,9 +1454,7 @@ async function copyForEmail() {
     w.document.close();
   }
 
-  // Trigger Excel (.xlsx) Report Download
   generateAndDownloadExcel(dateStr);
-
   showToast('Copied Summary & Downloaded Excel Attachment!', 'success');
 }
 
@@ -1923,9 +1804,3 @@ function importEmailCsv(e) {
 </script>
 </body>
 </html>
-'''
-
-with open('open_entry_suite_v4_consolidated.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
-
-print("Generated file: open_entry_suite_v4_consolidated.html")
