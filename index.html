@@ -1,9 +1,9 @@
-compact_html = '''<!DOCTYPE html>
+code = '''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Open Entry — Settlement Suite Pro (Zero Scroll View)</title>
+<title>Open Entry — Suite Pro</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -466,7 +466,7 @@ compact_html = '''<!DOCTYPE html>
   .toast {
     background: #0f172a;
     color: #fff;
-    padding: 8px 14px;
+    padding: 9px 15px;
     border-radius: 8px;
     font-size: 12.5px;
     font-weight: 600;
@@ -514,28 +514,28 @@ compact_html = '''<!DOCTYPE html>
     <!-- DROPZONE -->
     <div id="dropzone" class="dropzone" onclick="document.getElementById('file').click()">
       <div class="icon-box">📥</div>
-      <h2>Drag & Drop your Settlement Sheet here</h2>
-      <p>Supports .xlsx, .xls, or .csv exports (Bank Settlement / Open Entry reports)</p>
+      <h2>Drag & Drop your Open Entry Sheet here</h2>
+      <p>Supports .xlsx, .xls, or .csv exports (Bank / Open Entry reports)</p>
       <button class="btn" style="pointer-events:none">Browse File from Computer</button>
     </div>
 
     <!-- ========== DASHBOARD ========== -->
     <div id="viewDash" class="hidden">
       <div class="hero">
-        <div class="eyebrow">Settlement Analytics</div>
+        <div class="eyebrow">Analytics Hub</div>
         <h1>Open Entry <span class="accent">Intelligence Hub</span></h1>
         <p>Live reconciliation & executive summary export.</p>
       </div>
 
       <div style="text-align:center; margin-bottom:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
-        <button class="btn green" onclick="copyForEmail()">📋 Copy Summary for Email (Wide & Zero Scroll)</button>
+        <button class="btn green" onclick="copyForEmail()">📋 Copy Summary & Download Excel</button>
         <button class="btn" onclick="exportExec()">📤 Download Summary HTML</button>
         <button class="btn ghost" onclick="window.print()">🖨️ Print / PDF</button>
       </div>
 
       <!-- KPIS -->
       <div class="kpis">
-        <div class="kpi k1"><div class="ico">₹</div><div class="lbl">Total Settled</div><div class="val" id="kAmt">₹0</div></div>
+        <div class="kpi k1"><div class="ico">₹</div><div class="lbl">Total Amount</div><div class="val" id="kAmt">₹0</div></div>
         <div class="kpi k2"><div class="ico">⇄</div><div class="lbl">Transactions</div><div class="val" id="kTx">0</div></div>
         <div class="kpi k3"><div class="ico">🏛</div><div class="lbl">Institutes</div><div class="val" id="kGrp">0</div></div>
         <div class="kpi k4"><div class="ico">Ø</div><div class="lbl">Avg / Txn</div><div class="val" id="kAvg">₹0</div></div>
@@ -548,7 +548,7 @@ compact_html = '''<!DOCTYPE html>
           <div id="bars"></div>
         </div>
         <div class="card">
-          <h3>Settlement Share Distribution</h3>
+          <h3>Share Distribution</h3>
           <div class="donut-wrap">
             <svg id="donut" width="150" height="150" viewBox="0 0 42 42"></svg>
             <div class="legend" id="share"></div>
@@ -558,7 +558,7 @@ compact_html = '''<!DOCTYPE html>
 
       <!-- TRANSACTIONS TABLE -->
       <div class="card">
-        <h3>Settlement Transactions</h3>
+        <h3>Transaction Records</h3>
         <div class="filterbar">
           <input type="text" class="search" id="search" placeholder="🔍 Search PAY ID, UTR, A/C, IFSC, remark…" oninput="applyFilters()">
           <select id="fRemark" onchange="applyFilters()"><option value="">All institutes</option></select>
@@ -609,7 +609,7 @@ compact_html = '''<!DOCTYPE html>
     <!-- ========== MAILER ========== -->
     <div id="viewMail" class="hidden">
       <div class="hero">
-        <div class="eyebrow">Settlement Mailer</div>
+        <div class="eyebrow">Institute Mailer</div>
         <h1>Institute <span class="accent">Confirmation Dispatch</span></h1>
         <p>Preview individualized transaction schedules and dispatch drafts.</p>
       </div>
@@ -618,7 +618,7 @@ compact_html = '''<!DOCTYPE html>
         <div class="step">Cycle Overview</div>
         <div class="stats">
           <div class="pill">Total Records<b id="mRec">0</b></div>
-          <div class="pill">Settled Value<b id="mAmt">₹0</b></div>
+          <div class="pill">Total Amount<b id="mAmt">₹0</b></div>
           <div class="pill">Institutes<b id="mGrp">0</b></div>
           <div class="pill">Dispatched<b id="mSentCount" style="color:var(--green)">0 / 0</b></div>
         </div>
@@ -629,18 +629,18 @@ compact_html = '''<!DOCTYPE html>
         <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px">
           <div style="flex:2; min-width:220px">
             <label class="lbl">Email Subject</label>
-            <input type="text" id="subject" value="Settlement Confirmation - {name} [{date}]" style="width:100%">
+            <input type="text" id="subject" value="Payment Confirmation - {name} [{date}]" style="width:100%">
           </div>
           <div style="flex:1; min-width:160px">
             <label class="lbl">Sign-off / Sender Name</label>
-            <input type="text" id="sender" value="Settlement Operations Team" style="width:100%">
+            <input type="text" id="sender" value="Operations Team" style="width:100%">
           </div>
         </div>
 
         <label class="lbl">Intro Message Body — <code>{name}</code> <code>{amount}</code> <code>{count}</code> <code>{date}</code> <code>{sender}</code> auto-replace</label>
         <textarea id="body">Dear {name},
 
-We are pleased to inform you that your settlement for {count} transaction(s) amounting to Rs. {amount} has been processed successfully.
+We are pleased to inform you that your payment for {count} transaction(s) amounting to Rs. {amount} has been processed successfully.
 
 Please find the transaction breakdown below for your records:</textarea>
 
@@ -668,7 +668,7 @@ Please find the transaction breakdown below for your records:</textarea>
             <tbody id="mailerRows"></tbody>
           </table>
         </div>
-        <div class="hint">💡 Emails are saved automatically. Click <strong>'👁 Preview'</strong> to copy the 100% formatted HTML table directly.</div>
+        <div class="hint">💡 Emails are saved automatically. Click <strong>'👁 Preview'</strong> to copy the formatted HTML table directly.</div>
       </div>
 
       <div class="card">
@@ -680,7 +680,7 @@ Please find the transaction breakdown below for your records:</textarea>
       </div>
     </div>
 
-    <footer>Open Entry Settlement Suite Pro · Client-Side Processing</footer>
+    <footer>Open Entry Suite Pro · Client-Side Processing</footer>
   </div>
 
   <!-- PREVIEW MODAL -->
@@ -746,7 +746,7 @@ function showToast(msg, type = 'info') {
     t.style.transform = 'translateY(10px)';
     t.style.transition = 'all 0.3s ease';
     setTimeout(() => t.remove(), 300);
-  }, 2400);
+  }, 2600);
 }
 
 function inr(n) {
@@ -846,7 +846,7 @@ function handleUploadedFile(f) {
         return;
       }
       parseDataset(rows);
-      showToast(`Loaded ${TX.length} settlement records!`, 'success');
+      showToast(`Loaded ${TX.length} transaction records!`, 'success');
     } catch (err) {
       console.error(err);
       showToast('Error reading file. Check structure.', 'warn');
@@ -881,7 +881,7 @@ function parseDataset(rows) {
       acc: (findCol(r, ['ACNO', 'ACCOUNT', 'ACCNO']) || '').toString().trim(),
       ifsc: (findCol(r, ['IFSC', 'IFSCCODE']) || '').toString().trim(),
       utr: (findCol(r, ['UTR', 'BANKREF', 'RRN', 'REFNO']) || '').toString().trim(),
-      date: parseRawDate(findCol(r, ['DATE', 'TXNDATE', 'SETTLEMENTDATE'])),
+      date: parseRawDate(findCol(r, ['DATE', 'TXNDATE', 'ENTRYDATE'])),
       remark: name
     };
     TX.push(t);
@@ -1074,7 +1074,7 @@ function exportCsv() {
   FILTERED.forEach(t => {
     csv += `"${t.payid}",${t.amount},"${t.acc}","${t.ifsc}","${t.utr}","${t.date}","${t.remark.replace(/"/g, '""')}"\n`;
   });
-  downloadBlob(csv, `Settlement_Transactions_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
+  downloadBlob(csv, `Open_Entry_Transactions_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
 }
 
 function downloadBlob(content, name, type) {
@@ -1085,7 +1085,7 @@ function downloadBlob(content, name, type) {
   a.click();
 }
 
-/* ================= ULTRA-COMPACT "ZERO SCROLL" FULL-WIDTH EMAIL SUMMARY BUILDER ================= */
+/* ================= ULTRA-COMPACT ZERO-SCROLL FULL-WIDTH EMAIL SUMMARY ================= */
 function pctTo100(vals) {
   const total = vals.reduce((s, v) => s + v, 0) || 1;
   const raw = vals.map(v => v / total * 1000);
@@ -1102,13 +1102,11 @@ function buildSummaryHtml() {
   const g = getGroupSums();
   const pcts = pctTo100(g.map(x => x.amount));
   
-  // Top 10 Institutes by Volume
   const top10 = g.slice(0, 10);
   const rest = g.slice(10);
   const max = top10.length ? top10[0].amount : 1;
   const dateStr = niceDate();
 
-  // 1. Left Column: Top 10 Institutes with Ultra-Slim Progress Bars
   const barsHtml = top10.map((x, i) => {
     const widthPct = (x.amount / max * 100).toFixed(1);
     return `<tr>
@@ -1122,7 +1120,6 @@ function buildSummaryHtml() {
     </tr>`;
   }).join('');
 
-  // 2. Right Column: Settlement Share Distribution (Exact match with screenshot)
   const shareSegments = top10.slice(0, 7).map((x, i) => ({
     name: x.name,
     amount: x.amount,
@@ -1139,12 +1136,10 @@ function buildSummaryHtml() {
     });
   }
 
-  // Segmented Color Line
   const colorSegmentsBar = shareSegments.map(s => 
     `<td style="width:${s.pct}%;background:${s.color};height:8px;" title="${escapeHtml(s.name)}: ${s.pct}%"></td>`
   ).join('');
 
-  // Rows for Right Column (padded to match 10 rows vertically)
   const shareListHtml = shareSegments.map(s => `<tr>
     <td style="padding:2.5px 6px;font-size:11px;color:#0f172a;border-bottom:1px solid #f1f5f9;font-weight:600;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis">
       <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${s.color};margin-right:5px;vertical-align:middle"></span>
@@ -1153,7 +1148,6 @@ function buildSummaryHtml() {
     <td style="padding:2.5px 6px;text-align:right;font-size:11px;font-weight:700;color:#2563eb;border-bottom:1px solid #f1f5f9">${s.pct}%</td>
   </tr>`).join('');
 
-  // Single-Screen Viewport Fit Structure (Width 96% / 960px max width so it spans nicely across the whole email body)
   const inner = `
     <div style="width:100%;max-width:960px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;line-height:1.35;font-size:12px">
       
@@ -1161,12 +1155,12 @@ function buildSummaryHtml() {
       <table style="width:100%;border-collapse:collapse;background:#0f1a2e;border-radius:8px;margin-bottom:8px;color:#ffffff">
         <tr>
           <td style="padding:8px 14px;vertical-align:middle">
-            <span style="font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#60a5fa;font-weight:700;display:block">Settlement Summary Report</span>
-            <span style="font-size:16px;font-weight:800;letter-spacing:-0.3px">Open Entry Settlements — ${dateStr}</span>
+            <span style="font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#60a5fa;font-weight:700;display:block">Summary Report</span>
+            <span style="font-size:16px;font-weight:800;letter-spacing:-0.3px">Open Entry Summary — ${dateStr}</span>
           </td>
           <td style="padding:6px 14px;text-align:right;vertical-align:middle;white-space:nowrap">
             <span style="display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;margin-left:6px;text-align:left">
-              <span style="color:#94a3b8;font-size:8.5px;text-transform:uppercase;display:block;font-weight:700">Total Settled</span>
+              <span style="color:#94a3b8;font-size:8.5px;text-transform:uppercase;display:block;font-weight:700">Total Amount</span>
               <b style="color:#60a5fa;font-size:13.5px">${inrShort(total)}</b>
             </span>
             <span style="display:inline-block;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;margin-left:6px;text-align:left">
@@ -1181,7 +1175,7 @@ function buildSummaryHtml() {
         </tr>
       </table>
 
-      <!-- 2-COLUMN BALANCED SECTION (TOP 10 + SHARE DISTRIBUTION) -->
+      <!-- 2-COLUMN BALANCED SECTION -->
       <table style="width:100%;border-collapse:separate;border-spacing:0;margin-bottom:6px">
         <tr>
           <!-- TOP 10 INSTITUTES BY VOLUME -->
@@ -1197,15 +1191,14 @@ function buildSummaryHtml() {
             </div>
           </td>
 
-          <!-- SETTLEMENT SHARE DISTRIBUTION -->
+          <!-- SHARE DISTRIBUTION -->
           <td style="width:48%;vertical-align:top;padding-left:4px">
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;box-sizing:border-box">
               <div style="font-size:11.5px;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;gap:5px">
                 <span style="width:3px;height:12px;background:#16a34a;display:inline-block;border-radius:2px"></span>
-                Settlement Share Distribution
+                Share Distribution
               </div>
               
-              <!-- Stacked Distribution Bar -->
               <table style="width:100%;border-collapse:collapse;margin-bottom:6px;border-radius:4px;overflow:hidden">
                 <tr>${colorSegmentsBar}</tr>
               </table>
@@ -1218,7 +1211,7 @@ function buildSummaryHtml() {
         </tr>
       </table>
 
-      <!-- 1-LINE SLIM GRAND TOTAL FOOTER (NO EXTRA SCROLL) -->
+      <!-- 1-LINE SLIM GRAND TOTAL FOOTER -->
       <table style="width:100%;border-collapse:collapse;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px">
         <tr>
           <td style="padding:5px 8px;font-size:11px;color:#64748b;vertical-align:middle">
@@ -1234,9 +1227,71 @@ function buildSummaryHtml() {
   return { inner, dateStr };
 }
 
+/* ================= EXCEL REPORT GENERATOR FOR ATTACHMENT ================= */
+function generateAndDownloadExcel(dateStr) {
+  if (!TX.length) return;
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Institute Summary
+  const g = getGroupSums();
+  const totalAmt = TX.reduce((s, t) => s + t.amount, 0);
+  const pcts = pctTo100(g.map(x => x.amount));
+
+  const summaryData = [
+    ["Open Entry - Executive Summary", "", "", "", ""],
+    [`Generated Date: ${dateStr}`, "", "", "", ""],
+    ["Total Amount (INR):", totalAmt, `Total Transactions:`, TX.length, `Total Institutes: ${g.length}`],
+    [],
+    ["Sr No", "Institute / Partner", "Transactions Count", "Total Amount (INR)", "Share (%)", "Mapped Email"]
+  ];
+
+  g.forEach((item, idx) => {
+    const groupObj = GROUPS[item.name] || {};
+    summaryData.push([
+      idx + 1,
+      item.name,
+      groupObj.count || 0,
+      item.amount,
+      parseFloat(pcts[idx] || 0),
+      groupObj.email || ""
+    ]);
+  });
+
+  summaryData.push([]);
+  summaryData.push(["", "GRAND TOTAL", TX.length, totalAmt, 100.0, ""]);
+
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+  XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+
+  // Sheet 2: All Detailed Transactions
+  const txHeads = ["Sr No", "PAY ID", "Amount (INR)", "A/C NO", "IFSC", "UTR / Bank Ref", "Date", "Remark / Institute"];
+  const txData = [txHeads];
+  TX.forEach((t, i) => {
+    txData.push([
+      i + 1,
+      t.payid,
+      t.amount,
+      t.acc,
+      t.ifsc,
+      t.utr,
+      t.date,
+      t.remark
+    ]);
+  });
+
+  const wsTx = XLSX.utils.aoa_to_sheet(txData);
+  XLSX.utils.book_append_sheet(wb, wsTx, "All Transactions");
+
+  const fileName = `Open_Entry_Report_${dateStr.replace(/ /g, '_')}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+}
+
+/* ================= COPY SUMMARY & SIMULTANEOUS EXCEL DOWNLOAD ================= */
 async function copyForEmail() {
   if (!TX.length) { showToast('Upload a sheet first.', 'warn'); return; }
-  const { inner } = buildSummaryHtml();
+  const { inner, dateStr } = buildSummaryHtml();
+  
+  // 1. Copy formatted HTML to Clipboard
   try {
     const blob = new Blob([inner], { type: 'text/html' });
     const data = [new ClipboardItem({ 
@@ -1244,19 +1299,23 @@ async function copyForEmail() {
       'text/plain': new Blob([inner.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')], { type: 'text/plain' }) 
     })];
     await navigator.clipboard.write(data);
-    showToast('Copied full-width Zero-Scroll summary! Paste into Gmail (Ctrl+V)', 'success');
   } catch (err) {
     const w = window.open('', '_blank');
     w.document.write('<div style="padding:10px;background:#fffbe6;font-family:sans-serif">Press Ctrl+A then Ctrl+C to copy:</div>' + inner);
     w.document.close();
   }
+
+  // 2. Trigger Excel (.xlsx) Report Download for attachment
+  generateAndDownloadExcel(dateStr);
+
+  showToast('Copied Summary & Downloaded Excel Attachment!', 'success');
 }
 
 function exportExec() {
   if (!TX.length) { showToast('Upload a sheet first.', 'warn'); return; }
   const { inner, dateStr } = buildSummaryHtml();
-  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Settlement Summary ${dateStr}</title></head><body style="margin:0;background:#eef2f7;padding:16px 8px">${inner}</body></html>`;
-  downloadBlob(fullHtml, `Settlement_Summary_${dateStr.replace(/ /g, '_')}.html`, 'text/html');
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Summary ${dateStr}</title></head><body style="margin:0;background:#eef2f7;padding:16px 8px">${inner}</body></html>`;
+  downloadBlob(fullHtml, `Open_Entry_Summary_${dateStr.replace(/ /g, '_')}.html`, 'text/html');
 }
 
 /* ================= MAILER ENGINE & DISPATCH ================= */
@@ -1597,7 +1656,7 @@ function importEmailCsv(e) {
 </html>
 '''
 
-with open('open_entry_zero_scroll.html', 'w', encoding='utf-8') as f:
-    f.write(compact_html)
+with open('open_entry_suite_final.html', 'w', encoding='utf-8') as f:
+    f.write(code)
 
-print("Saved ultra compact version: open_entry_zero_scroll.html")
+print("Saved final file: open_entry_suite_final.html")
