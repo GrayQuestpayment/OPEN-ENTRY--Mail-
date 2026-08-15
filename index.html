@@ -1,4 +1,116 @@
-<!DOCTYPE html>
+import pandas as pd
+import glob
+import os
+
+files = glob.glob("*.xlsx") + glob.glob("*.xls")
+print("Files found:", files)
+
+for f in files:
+    try:
+        xls = pd.ExcelFile(f)
+        print(f"\nFile: {f}, Sheets: {xls.sheet_names}")
+        df = pd.read_excel(f, sheet_name=xls.sheet_names[0])
+        print("Columns:", df.columns.tolist())
+        print("Head:")
+        print(df.head(10))
+    except Exception as e:
+        print(f"Error reading {f}: {e}")
+        df = pd.read_excel('Open_Entry_13th_Aug-26.xlsx', sheet_name='DATA')
+mapping = df[['BANK_TRANSFERS.PAYER_NAME', 'REMARK']].drop_duplicates()
+print(f"Total rows: {len(df)}")
+print(f"Unique payer names -> remarks mapping ({len(mapping)} mappings):")
+for idx, r in mapping.iterrows():
+    print(f"'{r['BANK_TRANSFERS.PAYER_NAME']}'  ==>  '{r['REMARK']}'")
+    def normalize_institute_name(raw_name, explicit_remark=""):
+    # If explicit remark is given and not empty, check if it's already a clean remark
+    if explicit_remark and str(explicit_remark).strip() and str(explicit_remark).strip().upper() != 'NAN':
+        return str(explicit_remark).strip()
+    
+    if not raw_name or str(raw_name).strip().upper() in ('', 'NAN', 'NULL', 'UNDEFINED'):
+        return 'PARENT'
+    
+    s = str(raw_name).strip()
+    u = s.upper().replace('.', ' ').replace('_', ' ')
+    clean_alpha = ''.join(c for c in u if c.isalnum() or c.isspace())
+    
+    # 1. Known Institute Brand Consolidations
+    if 'PODAR' in clean_alpha:
+        return 'PODAR'
+    if 'MANIPAL' in clean_alpha:
+        return 'MANIPAL'
+    if 'AAKASH' in clean_alpha:
+        return 'AAKASH'
+    if 'ALLEN' in clean_alpha:
+        return 'ALLEN'
+    if 'DY PATIL' in clean_alpha or 'D Y PATIL' in clean_alpha or 'PATIL VIDYAPEETH' in clean_alpha:
+        return 'D Y PATIL'
+    if 'DELHIPUBLIC' in clean_alpha.replace(' ', '') or 'DELHI PUBLIC' in clean_alpha:
+        return 'DELHI PUBLIC SCHOOL'
+    if 'VIVEKANANDA' in clean_alpha:
+        return 'VIVEKANANDA'
+    if 'RYAN' in clean_alpha:
+        return 'RYAN'
+    if 'VARSITY' in clean_alpha:
+        return 'VARSITY'
+    if 'SIGMA INSTITUTE' in clean_alpha or 'SIGMA' in clean_alpha:
+        return 'SIGMA INSTITUTE'
+    if 'INWARD RTGS' in clean_alpha or 'INWARD NEFT' in clean_alpha:
+        return 'INWARD RTGS'
+    if 'CUTCHHI VISA OSWAL' in clean_alpha or 'DERAWASI JAIN' in clean_alpha:
+        return 'SHREE CUTCHHI VISA OSWAL'
+    if 'NARAYANA' in clean_alpha:
+        return 'NARAYANA EDUCATIONAL TRUST'
+    if 'NEXGEN' in clean_alpha:
+        return 'NEXGEN EDUCATIONAL TRUST'
+    if 'PINAKIN' in clean_alpha:
+        return 'PINAKIN EDUCATIONAL TRUST'
+    if 'EDSCIENCE' in clean_alpha:
+        return 'EDSCIENCE KNOWLEDGE SOLUTIONS PRIVATE LIMITED'
+    if 'CHRIST COLLEGE' in clean_alpha:
+        return 'CHRIST COLLEGE PUNE'
+    if 'J N N' in clean_alpha or 'JNN' in clean_alpha:
+        if 'VIDYALLAYA' in clean_alpha:
+            return 'J N N VIDYALLAYA'
+        return 'J N N INSTITUTE OF ENGINEERING'
+    if 'SRMTRUST' in clean_alpha.replace(' ', '') or 'SRM TRUST' in clean_alpha:
+        return 'srmtrust'
+    if 'DHONI GLOBAL' in clean_alpha:
+        return 'M S DHONI GLOBAL SCHOOL'
+    if 'JAYSHREE PERIWAL' in clean_alpha:
+        return 'JAYSHREE PERIWAL INTERNATIONAL PRE'
+    if 'SRI SHANMUGHA' in clean_alpha:
+        return 'SRI SHANMUGHA EDUCATIONAL CHARITABL'
+    if 'THECLASSONE' in clean_alpha.replace(' ', ''):
+        return 'THECLASSONEINDIA'
+    if 'INDIAN TECHNICAL AND COMPUTER' in clean_alpha:
+        return 'INDIAN TECHNICAL AND COMPUTER INSTITUTE'
+    if 'INST OF DISTANCE LEARNING' in clean_alpha:
+        return 'INST'
+
+    # Check institutional keywords
+    inst_keywords = ['TRUST', 'SCHOOL', 'COLLEGE', 'UNIVERSITY', 'INSTITUTE', 'ACADEMY', 'EDUCATION', 'VIDYAPEETH', 'VIDYALAYA', 'FOUNDATION', 'INTERNATIONAL', 'CAMPUS', 'SERVICES LIMITED', 'PVT LTD', 'PRIVATE LIMITED']
+    is_inst = any(kw in clean_alpha for kw in inst_keywords)
+    
+    if not is_inst:
+        # Check parent indicator (Mr, Mrs, Kumar, Singh, individual person names, etc.)
+        return 'PARENT'
+    
+    return s
+
+# Test against the actual Excel sheet
+df = pd.read_excel('Open_Entry_13th_Aug-26.xlsx', sheet_name='DATA')
+correct = 0
+for idx, r in df.iterrows():
+    payer = str(r['BANK_TRANSFERS.PAYER_NAME'])
+    actual_rem = str(r['REMARK'])
+    pred_no_rem = normalize_institute_name(payer, "")
+    if pred_no_rem == actual_rem:
+        correct += 1
+    else:
+        print(f"Mismatch: '{payer}' -> Pred: '{pred_no_rem}' vs Actual: '{actual_rem}'")
+
+print(f"\nAccuracy without REMARK column: {correct}/{len(df)} = {correct/len(df)*100:.1f}%")
+html_content = '''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1226,11 +1338,9 @@ function renderFilteredTable() {
 }
 
 function exportCsv() {
-  let csv = 'PAY ID,Amount,A/C NO,IFSC,UTR,Date,Remark
-';
+  let csv = 'PAY ID,Amount,A/C NO,IFSC,UTR,Date,Remark\n';
   FILTERED.forEach(t => {
-    csv += `"${t.payid}",${t.amount},"${t.acc}","${t.ifsc}","${t.utr}","${t.date}","${t.remark.replace(/"/g, '""')}"
-`;
+    csv += `"${t.payid}",${t.amount},"${t.acc}","${t.ifsc}","${t.utr}","${t.date}","${t.remark.replace(/"/g, '""')}"\n`;
   });
   downloadBlob(csv, `Open_Entry_Transactions_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
 }
@@ -1513,7 +1623,7 @@ function renderMailer() {
 }
 
 function escapeJs(str) {
-  return (str || '').replace(/\/g, '\\').replace(/'/g, "\'");
+  return (str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 function setEmail(name, v) {
@@ -1551,14 +1661,9 @@ function buildAsciiTable(g) {
   const line = r => r.map((c, i) => (c || '').toString().padEnd(w[i])).join(' | ');
   const sep = w.map(x => '-'.repeat(x)).join('-+-');
 
-  let out = line(heads) + '
-' + sep + '
-';
-  data.forEach(r => out += line(r) + '
-');
-  out += sep + '
-' + 'TOTAL'.padEnd(w[0]) + ' | ' + inrPlain(g.amount).padEnd(w[1]) + ' | ' + g.count + ' txns
-';
+  let out = line(heads) + '\n' + sep + '\n';
+  data.forEach(r => out += line(r) + '\n');
+  out += sep + '\n' + 'TOTAL'.padEnd(w[0]) + ' | ' + inrPlain(g.amount).padEnd(w[1]) + ' | ' + g.count + ' txns\n';
   return out;
 }
 
@@ -1610,11 +1715,7 @@ function constructInstituteMessage(g) {
   const subject = fill(subjTpl);
   const intro = fill(bodyTpl);
 
-  const plainBody = `${intro}
-
-${buildAsciiTable(g)}
-Regards,
-${sender}`;
+  const plainBody = `${intro}\n\n${buildAsciiTable(g)}\nRegards,\n${sender}`;
   const htmlBody = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#0f172a; line-height:1.5; font-size:13px">
       <p style="white-space:pre-line; margin:0 0 10px">${escapeHtml(intro)}</p>
@@ -1634,9 +1735,7 @@ function previewInstitute(name) {
   document.getElementById('mTitle').textContent = g.name;
   document.getElementById('mSub').textContent = `To: ${g.email || '(Email not mapped)'} | Subject: ${subject}`;
   document.getElementById('mHtmlContainer').innerHTML = htmlBody;
-  document.getElementById('mTextContainer').textContent = `Subject: ${subject}
-
-${plainBody}`;
+  document.getElementById('mTextContainer').textContent = `Subject: ${subject}\n\n${plainBody}`;
 
   const st = STATUSES[name] || 'pending';
   document.getElementById('modalMarkBtn').textContent = (st === 'sent') ? '✓ Mark Pending' : 'Mark as Sent';
@@ -1771,12 +1870,10 @@ function loadSavedStatuses() {
 
 /* ================= CSV PARSER ================= */
 function downloadEmailCsv() {
-  let csv = 'Institute,Amount,Count,Email
-';
+  let csv = 'Institute,Amount,Count,Email\n';
   ORDER.forEach(n => {
     const g = GROUPS[n];
-    csv += `"${g.name.replace(/"/g, '""')}",${g.amount},${g.count},"${(g.email || '').replace(/"/g, '""')}"
-`;
+    csv += `"${g.name.replace(/"/g, '""')}",${g.amount},${g.count},"${(g.email || '').replace(/"/g, '""')}"\n`;
   });
   downloadBlob(csv, 'email_mappings.csv', 'text/csv');
 }
@@ -1804,8 +1901,7 @@ function importEmailCsv(e) {
   if (!f) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const lines = ev.target.result.split(/?
-/).filter(l => l.trim().length);
+    const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim().length);
     let matched = 0;
     for (let i = 1; i < lines.length; i++) {
       const cols = parseCsvLine(lines[i]);
@@ -1827,3 +1923,9 @@ function importEmailCsv(e) {
 </script>
 </body>
 </html>
+'''
+
+with open('open_entry_suite_v4_consolidated.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("Generated file: open_entry_suite_v4_consolidated.html")
