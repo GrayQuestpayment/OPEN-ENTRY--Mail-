@@ -906,7 +906,7 @@ function showToast(msg, type = 'info') {
     t.style.transform = 'translateY(10px)';
     t.style.transition = 'all 0.3s ease';
     setTimeout(() => t.remove(), 300);
-  }, 2600);
+  }, type === 'warn' ? 6000 : 2600);
 }
 
 function inr(n) {
@@ -955,13 +955,45 @@ function dateToISO(dStr) {
   return '';
 }
 
+/* ================= CELL SANITIZATION (FIX: #N/A / #REF! etc.) =================
+   Google Sheets CSV export and Excel files carry formula errors (e.g. a failed
+   VLOOKUP) as literal text like "#N/A". Treat every such token as a blank cell
+   so it never becomes an institute name, UTR, account no, etc. */
+const JUNK_TOKENS = new Set([
+  '', 'NAN', 'NULL', 'UNDEFINED', 'NONE', 'NA', 'N/A', '-', '--',
+  '#N/A', '#NA', '#REF!', '#VALUE!', '#DIV/0!', '#NAME?', '#NULL!', '#NUM!',
+  '#ERROR!', '#SPILL!', '#CALC!', '#FIELD!', '#BLOCKED!', '#CONNECT!', '#BUSY!',
+  '#UNKNOWN!', '#GETTING_DATA', 'LOADING...'
+]);
+
+function isJunk(v) {
+  if (v === null || v === undefined) return true;
+  const s = String(v).trim().toUpperCase();
+  return JUNK_TOKENS.has(s);
+}
+
+function isFormulaError(v) {
+  return typeof v === 'string' && /^#/.test(v.trim()) && isJunk(v);
+}
+
+function warnErrorRemarks() {
+  if (ERROR_REMARKS > 0) {
+    showToast(`⚠ ${ERROR_REMARKS} rows had #N/A / formula errors in Remark — auto-classified from payer name (see "Mapped Via" in Excel)`, 'warn');
+  }
+}
+
+function cleanVal(v) {
+  if (v instanceof Date) return v;
+  return isJunk(v) ? '' : v;
+}
+
 /* ================= SMART CONSOLIDATION & PARENT DETECTION ================= */
 function normalizeInstituteName(rawName, explicitRemark = '') {
-  if (explicitRemark && String(explicitRemark).trim() && String(explicitRemark).trim().toUpperCase() !== 'NAN') {
+  if (!isJunk(explicitRemark)) {
     return String(explicitRemark).trim();
   }
 
-  if (!rawName || String(rawName).trim().toUpperCase() in {'':1, 'NAN':1, 'NULL':1, 'UNDEFINED':1}) {
+  if (isJunk(rawName)) {
     return 'PARENT';
   }
 
@@ -1053,7 +1085,9 @@ async function fetchFromGoogleSheet() {
     const res = await fetch(exportUrl);
     if (!res.ok) throw new Error('Network response not ok');
     const csvText = await res.text();
-    const wb = XLSX.read(csvText, { type: 'string', cellDates: true });
+    // raw:true keeps every cell as text: stops DD/MM dates being flipped to MM/DD,
+    // long A/C numbers losing digits, and UTRs losing leading zeros.
+    const wb = XLSX.read(csvText, { type: 'string', raw: true });
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
     
     if (!rows || !rows.length) {
@@ -1064,6 +1098,7 @@ async function fetchFromGoogleSheet() {
     document.getElementById('fileInfo').textContent = `Google Sheet (gid: ${gid})`;
     parseDataset(rows);
     showToast(`Synced! Loaded ${TX.length} Open Entry rows (Blank APP ID)!`, 'success');
+    warnErrorRemarks();
   } catch (err) {
     console.error('Fetch error:', err);
     showToast('Direct fetch blocked. Make sure "Anyone with the link can view" is set.', 'warn');
@@ -1092,7 +1127,9 @@ function handleUploadedFile(f) {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array', cellDates: true });
+      const isCsv = /\.csv$/i.test(f.name);
+      const wb = XLSX.read(new Uint8Array(ev.target.result),
+        isCsv ? { type: 'array', raw: true } : { type: 'array', cellDates: true });
       let sn = wb.SheetNames.find(n => n.toUpperCase().includes('DATA')) || wb.SheetNames[0];
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], { defval: '' });
       if (!rows || !rows.length) {
@@ -1101,6 +1138,7 @@ function handleUploadedFile(f) {
       }
       parseDataset(rows);
       showToast(`Loaded ${TX.length} Open Entry records (Blank APP ID)!`, 'success');
+      warnErrorRemarks();
     } catch (err) {
       console.error(err);
       showToast('Error reading file. Check structure.', 'warn');
@@ -1109,11 +1147,11 @@ function handleUploadedFile(f) {
   reader.readAsArrayBuffer(f);
 }
 
-function findCol(row, keys) {
+function findCol(row, keys, raw = false) {
   for (const k of Object.keys(row)) {
     const kn = k.toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
     for (const w of keys) {
-      if (kn === w || kn.includes(w)) return row[k];
+      if (kn === w || kn.includes(w)) return raw ? row[k] : cleanVal(row[k]);
     }
   }
   return '';
@@ -1128,9 +1166,13 @@ function hasAppIdColumn(firstRow) {
   return false;
 }
 
+let ERROR_REMARKS = 0;
+
 function parseDataset(rows) {
   TX = []; GROUPS = {}; ORDER = [];
+  ERROR_REMARKS = 0;
   const checkAppId = rows.length > 0 && hasAppIdColumn(rows[0]);
+  const REMARK_KEYS = ['REMARK', 'REMARK1', 'R1', 'INSTITUTE', 'COLLEGE', 'SCHOOL'];
 
   for (const r of rows) {
     if (checkAppId) {
@@ -1139,7 +1181,9 @@ function parseDataset(rows) {
     }
 
     const rawPayer = (findCol(r, ['BANKTRANSFERSPAYERNAME', 'PAYERNAME', 'PAYER_NAME', 'PAYER', 'STUDENT']) || '').toString().trim();
-    const explicitRemark = (findCol(r, ['REMARK', 'REMARK1', 'R1', 'INSTITUTE', 'COLLEGE', 'SCHOOL']) || '').toString().trim();
+    const explicitRemark = (findCol(r, REMARK_KEYS) || '').toString().trim();
+    const remarkRaw = findCol(r, REMARK_KEYS, true);
+    const remarkHadError = isFormulaError(remarkRaw);
 
     const name = normalizeInstituteName(rawPayer, explicitRemark);
 
@@ -1153,11 +1197,13 @@ function parseDataset(rows) {
       ifsc: (findCol(r, ['IFSCCODE', 'IFSC']) || '').toString().trim(),
       utr: (findCol(r, ['UTRBANKREFNO', 'UTR', 'BANKREF', 'RRN', 'REFNO']) || '').toString().trim(),
       date: parseRawDate(findCol(r, ['DATEDMYYYY', 'DATEMDYYYY', 'DATE', 'TXNDATE', 'ENTRYDATE'])),
-      remark: name
+      remark: name,
+      src: explicitRemark ? 'Sheet Remark' : (remarkHadError ? `Auto (Remark was ${String(remarkRaw).trim()})` : 'Auto (Payer Name)')
     };
 
     if (!t.payid && !t.amount && !t.utr) continue;
 
+    if (remarkHadError) ERROR_REMARKS++;
     TX.push(t);
 
     if (!GROUPS[name]) {
@@ -1525,10 +1571,10 @@ function generateAndDownloadExcel(dateStr) {
   const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
   XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
 
-  const txHeads = ["Sr No", "PAY ID", "Amount (INR)", "A/C NO", "IFSC", "UTR / Bank Ref", "Date", "Remark / Institute"];
+  const txHeads = ["Sr No", "PAY ID", "Amount (INR)", "A/C NO", "IFSC", "UTR / Bank Ref", "Date", "Remark / Institute", "Mapped Via"];
   const txData = [txHeads];
   TX.forEach((t, i) => {
-    txData.push([i + 1, t.payid, t.amount, t.acc, t.ifsc, t.utr, t.date, t.remark]);
+    txData.push([i + 1, t.payid, t.amount, t.acc, t.ifsc, t.utr, t.date, t.remark, t.src || '']);
   });
 
   const wsTx = XLSX.utils.aoa_to_sheet(txData);
