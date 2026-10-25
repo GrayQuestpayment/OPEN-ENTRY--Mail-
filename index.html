@@ -1154,7 +1154,8 @@ function parseDataset(rows) {
       ifsc: (findCol(r, ['IFSCCODE', 'IFSC']) || '').toString().trim(),
       utr: (findCol(r, ['UTRBANKREFNO', 'UTR', 'BANKREF', 'RRN', 'REFNO']) || '').toString().trim(),
       date: parseRawDate(findCol(r, ['DATEDMYYYY', 'DATEMDYYYY', 'DATE', 'TXNDATE', 'ENTRYDATE'])),
-      remark: name
+      remark: name,
+      payerName: (findCol(r, ['BANKTRANSFERSPAYERNAME']) || '').toString().trim()
     };
 
     if (!t.payid && !t.amount && !t.utr) continue;
@@ -1526,10 +1527,10 @@ function generateAndDownloadExcel(dateStr) {
   const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
   XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
 
-  const txHeads = ["Sr No", "PAY ID", "Amount (INR)", "A/C NO", "IFSC", "UTR / Bank Ref", "Date", "Remark / Institute"];
+  const txHeads = ["Sr No", "PAY ID", "Amount (INR)", "A/C NO", "IFSC", "UTR / Bank Ref", "Date", "Remark / Institute", "BANK_TRANSFERS.PAYER_NAME"];
   const txData = [txHeads];
   TX.forEach((t, i) => {
-    txData.push([i + 1, t.payid, t.amount, t.acc, t.ifsc, t.utr, t.date, t.remark]);
+    txData.push([i + 1, t.payid, t.amount, t.acc, t.ifsc, t.utr, t.date, t.remark, t.payerName]);
   });
 
   const wsTx = XLSX.utils.aoa_to_sheet(txData);
